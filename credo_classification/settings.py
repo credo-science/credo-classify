@@ -44,7 +44,10 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',  # TODO: implement self token for support pairing clients separately
 
     # Project apps
-    'application'
+    'users',
+    'definitions',
+    'database',
+    'values',
 ]
 
 MIDDLEWARE = [
@@ -132,7 +135,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-AUTH_USER_MODEL = 'application.User'
+AUTH_USER_MODEL = 'users.User'
 FILES_STORAGE = os.path.join(BASE_DIR, 'files')
 
 # Static files (CSS, JavaScript, Images)

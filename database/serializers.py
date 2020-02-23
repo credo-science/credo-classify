@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer, Serializer, CharField, IntegerField, FloatField
 from django.utils.translation import gettext_lazy as _
 
-from application.models import Team, CredoUser, Device, Ping, Detection
+from database.models import Team, CredoUser, Device, Ping, Detection
 
 
 class TeamSerializer(ModelSerializer):

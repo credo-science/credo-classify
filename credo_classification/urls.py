@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework import routers
 from rest_framework.authtoken import views
 
-from application.views import ImportTeams, ImportCredoUsers, ImportDevices
+from database.views import ImportTeams, ImportCredoUsers, ImportDevices
 
 router = routers.DefaultRouter()
 

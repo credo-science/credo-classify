@@ -3,8 +3,8 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from application.models import Team, CredoUser, Device, Ping
-from application.serializers import TeamsFileSerializer, CredoUsersFileSerializer, DevicesFileSerializer, PingFileSerializer
+from database.models import Team, CredoUser, Device, Ping
+from database.serializers import TeamsFileSerializer, CredoUsersFileSerializer, DevicesFileSerializer, PingFileSerializer
 
 
 class GenericImporter(APIView):
