@@ -3,8 +3,8 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from application.models import Team, CredoUser, Device
-from application.serializers import TeamsFileSerializer, CredoUsersFileSerializer, DevicesFileSerializer
+from application.models import Team, CredoUser, Device, Ping
+from application.serializers import TeamsFileSerializer, CredoUsersFileSerializer, DevicesFileSerializer, PingFileSerializer
 
 
 class GenericImporter(APIView):
@@ -77,3 +77,13 @@ class ImportDevices(GenericImporter):
     unit_name = 'devices'
     model_class = Device
     fields_to_import = ['user_id', 'device_type', 'device_model', 'system_version']
+
+
+class ImportPings(GenericImporter):
+    serializer_class = PingFileSerializer
+    unit_name = 'pings'
+    model_class = Ping
+    fields_to_import = ['timestamp', 'time_received', 'delta_time', 'on_time', 'device_id', 'user_id', 'metadata']
+
+
+# 'source', 'provider'

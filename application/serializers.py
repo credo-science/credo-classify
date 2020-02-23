@@ -1,7 +1,7 @@
-from rest_framework.serializers import ModelSerializer, Serializer, CharField, IntegerField
+from rest_framework.serializers import ModelSerializer, Serializer, CharField, IntegerField, FloatField
 from django.utils.translation import gettext_lazy as _
 
-from application.models import Team, CredoUser, Device
+from application.models import Team, CredoUser, Device, Ping, Detection
 
 
 class TeamSerializer(ModelSerializer):
@@ -48,3 +48,55 @@ class DeviceImporterSerializer(Serializer):
 
 class DevicesFileSerializer(Serializer):
     devices = DeviceImporterSerializer(many=True)
+
+
+class PingSerializer(ModelSerializer):
+    class Meta:
+        model = Ping
+
+
+class PingImporterSerializer(Serializer):
+    id = IntegerField(label=_("Ping ID"))
+    user_id = IntegerField(label=_("User ID"))
+    device_id = IntegerField(label=_("Device ID"))
+    timestamp = IntegerField(label=_("Timestamp"))
+    time_received = IntegerField(label=_("Time received"))
+    delta_time = IntegerField(label=_("Delta time"))
+    on_time = IntegerField(label=_("On time"))
+    metadata = CharField(label=_("Metadata"))
+
+
+class PingFileSerializer(Serializer):
+    pings = PingImporterSerializer(many=True)
+
+
+class DetectionSerializer(ModelSerializer):
+    class Meta:
+        model = Detection
+
+
+class DetectionImporterSerializer(Serializer):
+    id = IntegerField(label=_("Detection ID"))
+    user_id = IntegerField(label=_("User ID"))
+    device_id = IntegerField(label=_("Device ID"))
+    team_id = IntegerField(label=_("Team ID"))
+    timestamp = IntegerField(label=_("Timestamp"))
+    time_received = IntegerField(label=_("Time received"))
+    source = CharField(label=_("Source"))
+    provider = CharField(label=_("Provider"))
+    metadata = CharField(label=_("Metadata"))
+
+    # stored in DetectionAttribute
+    accuracy = FloatField(label=_("Team ID"))
+    latitude = FloatField(label=_("Team ID"))
+    longitude = FloatField(label=_("Team ID"))
+    altitude = FloatField(label=_("Team ID"))
+    frame_content = CharField(label=_("Metadata"))
+    height = IntegerField(label=_("Team ID"))
+    width = IntegerField(label=_("Team ID"))
+    x = IntegerField(label=_("Team ID"))
+    y = IntegerField(label=_("Team ID"))
+
+
+class DetectionFileSerializer(Serializer):
+    detections = DetectionImporterSerializer(many=True)

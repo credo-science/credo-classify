@@ -119,14 +119,18 @@ class Detection(models.Model):
     """
     CREDO Detection imported from original CREDO Database.
 
-    The id, device, user, team and metadata fields are imported from detections/*.json.
+    The id, device, user, team, timestamp, time_received and metadata fields are imported from detections/*.json.
     The frame_content was decoded and stored in file system.
     Reset attributes are stored in DetectionAttribute.
     """
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    timestamp = models.BigIntegerField(db_index=True)
+    time_received = models.BigIntegerField(blank=True)
     mime = models.CharField(max_length=32, default='image/png')
+    source = models.CharField(max_length=255, blank=True)
+    provider = models.CharField(max_length=255, blank=True)
     metadata = models.TextField(null=True, blank=True)
 
     def __str__(self):

@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 
     # Django REST framework
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework.authtoken',  # TODO: implement self token for support pairing clients separately
 
     # Project apps
     'application'
@@ -113,6 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
+        # TODO: use self token authentication for many tokens for one user support (for pairing clients separately)
         'rest_framework.authentication.TokenAuthentication',
     ]
 }

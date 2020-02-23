@@ -6,6 +6,20 @@ import django.contrib.auth.validators
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
+from rest_framework.authtoken.models import Token
+
+from application.models import User
+
+
+def post_migrations(arg1, arg2):
+    u = User.objects.create_user('nkg', 'nkg753@gmail.com', 'nkg')  # type: User
+    u.is_superuser = True
+    u.is_staff = True
+    u.save()
+
+    Token.objects.create(key='0000000000000000000000000000000000000000', user=u)
+
+
 
 
 class Migration(migrations.Migration):
@@ -147,4 +161,5 @@ class Migration(migrations.Migration):
                 'unique_together': {('detection', 'attribute', 'author')},
             },
         ),
+        migrations.RunPython(post_migrations),
     ]
