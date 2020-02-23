@@ -4,6 +4,22 @@ from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
 
+from definitions.models import Attribute
+from users.models import User
+
+
+def post_migrations(arg1, arg2):
+    from credo_classification.settings import INIT_ADMIN_USER
+    u = User.objects.filter(username=INIT_ADMIN_USER).first()
+    Attribute.objects.create(name='accuracy', description='GPS accuaracy', author=u)
+    Attribute.objects.create(name='latitude', description='GPS latitude', author=u)
+    Attribute.objects.create(name='longitude', description='GPS longitude', author=u)
+    Attribute.objects.create(name='altitude', description='GPS altitude', author=u)
+    Attribute.objects.create(name='height', description='Height of image frame', author=u)
+    Attribute.objects.create(name='width', description='Width of image frame', author=u)
+    Attribute.objects.create(name='x', description='X on image of center of crop', author=u)
+    Attribute.objects.create(name='y', description='Y on image of center of crop', author=u)
+
 
 class Migration(migrations.Migration):
 
@@ -39,8 +55,5 @@ class Migration(migrations.Migration):
             name='relation',
             unique_together={('src', 'dest')},
         ),
-        migrations.AlterUniqueTogether(
-            name='attribute',
-            unique_together={('name',)},
-        ),
+        migrations.RunPython(post_migrations),
     ]

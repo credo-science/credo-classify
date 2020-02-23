@@ -63,7 +63,7 @@ class Detection(models.Model):
     Reset attributes are stored in DetectionAttribute.
     """
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CredoUser, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     timestamp = models.BigIntegerField(db_index=True)
     time_received = models.BigIntegerField(blank=True)
@@ -75,19 +75,31 @@ class Detection(models.Model):
     def __str__(self):
         return "Detection %s" % self.id
 
-    def get_filename(self):
+    def get_filepath(self) -> str:
+        """
+        Directory where file with frame_content was stored.
+        :return: absolute path for directory
+        """
+        from credo_classification.settings import FILES_STORAGE
+        import os
+
+        top = '%04d' % int(self.id / 100000000)
+        middle = '%04d' % int(self.id / 10000)
+
+        return os.path.join(FILES_STORAGE, top, middle)
+
+    def get_filename(self) -> str:
         """
         File name where frame_content was stored.
         :return: absolute path for file with decoded data
         """
-        from credo_classification.settings import FILES_STORAGE
         import os
 
         ext = 'dat'
         if self.mime == 'image/png':
             ext = 'png'
 
-        return os.path.join(FILES_STORAGE, '%d.%s' % (self.id, ext))
+        return os.path.join(self.get_filepath(), '%09d.%s' % (self.id, ext))
 
     class Meta(DjangoPlusViewPermissionsMixin):
         pass
@@ -105,7 +117,7 @@ class Ping(models.Model):
     metadata = models.TextField(null=True, blank=True)
 
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CredoUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return "Ping %s" % self.id

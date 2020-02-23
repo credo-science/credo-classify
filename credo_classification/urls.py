@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework import routers
 from rest_framework.authtoken import views
 
-from database.views import ImportTeams, ImportCredoUsers, ImportDevices
+from database.views import ImportTeams, ImportCredoUsers, ImportDevices, ImportPings, ImportDetections
 
 router = routers.DefaultRouter()
 
@@ -29,5 +29,7 @@ urlpatterns = [
     url(r'^api/import/teams/', ImportTeams.as_view()),
     url(r'^api/import/users/', ImportCredoUsers.as_view()),
     url(r'^api/import/devices/', ImportDevices.as_view()),
+    url(r'^api/import/pings/', ImportPings.as_view()),
+    url(r'^api/import/detections/', ImportDetections.as_view()),
     url(r'^api/', include(router.urls))
 ]

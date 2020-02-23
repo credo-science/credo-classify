@@ -86,8 +86,14 @@ WSGI_APPLICATION = 'credo_classification.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'credo',
+        'USER': 'credo',
+        'PASSWORD': 'credo',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
         'ATOMIC_REQUESTS': True,
     }
 }
@@ -136,9 +142,14 @@ USE_L10N = True
 USE_TZ = True
 
 AUTH_USER_MODEL = 'users.User'
-FILES_STORAGE = os.path.join(BASE_DIR, 'files')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Project settings:
+FILES_STORAGE = os.path.join(BASE_DIR, 'files')
+INIT_ADMIN_USER = 'nkg'
+INIT_ADMIN_PASS = 'nkg'
+INIT_ADMIN_EMAIL = 'nkg753@gmail.com'

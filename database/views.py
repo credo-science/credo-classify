@@ -1,10 +1,22 @@
+import base64
+import os
+from typing import Any
+
 from django.db.models import Model
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from database.models import Team, CredoUser, Device, Ping
-from database.serializers import TeamsFileSerializer, CredoUsersFileSerializer, DevicesFileSerializer, PingFileSerializer
+from database.models import Team, CredoUser, Device, Ping, Detection
+from database.serializers import TeamsFileSerializer, CredoUsersFileSerializer, DevicesFileSerializer, PingFileSerializer, DetectionFileSerializer
+from definitions.models import Attribute
+from values.models import DetectionAttribute
+
+
+def default_to(v: Any, d: Any) -> Any:
+    if v is None:
+        return d
+    return v
 
 
 class GenericImporter(APIView):
@@ -36,7 +48,8 @@ class GenericImporter(APIView):
             v = self.model_class.objects.filter(pk=v_id).first()  # type: Model
             if v is None:
                 inserted += 1
-                self.model_class.objects.create(id=v_id, **v_fields)
+                e = self.model_class.objects.create(id=v_id, **v_fields)
+                self.import_as_attributes(e, unit)
             else:
                 changed = False
                 for key, value in v_fields.items():
@@ -44,9 +57,12 @@ class GenericImporter(APIView):
                         changed = True
                         setattr(v, key, value)
 
+                attr_changed = self.import_as_attributes(v, unit)
+
                 if changed:
-                    updated += 1
                     v.save()
+                if attr_changed or changed:
+                    updated += 1
                 else:
                     not_changed += 1
 
@@ -56,6 +72,9 @@ class GenericImporter(APIView):
             'updated': updated,
             'not_changed': not_changed
         })
+
+    def import_as_attributes(self, entity: Model, unit: dict) -> bool:
+        return False
 
 
 class ImportTeams(GenericImporter):
@@ -86,4 +105,69 @@ class ImportPings(GenericImporter):
     fields_to_import = ['timestamp', 'time_received', 'delta_time', 'on_time', 'device_id', 'user_id', 'metadata']
 
 
-# 'source', 'provider'
+class ImportDetections(GenericImporter):
+    serializer_class = DetectionFileSerializer
+    unit_name = 'detections'
+    model_class = Detection
+    fields_to_import = ['timestamp', 'time_received', 'device_id', 'user_id', 'team_id', 'source', 'provider', 'metadata']
+    attributes_fields = ['accuracy', 'latitude', 'longitude', 'altitude', 'height', 'width', 'x', 'y']
+    attributes_buff = {}
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        for f in self.attributes_fields:
+            self.attributes_buff[f] = Attribute.objects.filter(name=f).first()
+
+    def import_as_attributes(self, entity: Detection, unit: dict) -> bool:
+        changed = False
+        user = self.request.user
+        for f in self.attributes_fields:
+            filters = {
+                'detection': entity,
+                'attribute': self.attributes_buff[f],
+                'author': user
+            }
+
+            da = DetectionAttribute.objects.filter(**filters).first()
+            rv = unit.get(f)
+            if rv is None:
+                if da is not None:
+                    changed = True
+                    da.delete()
+            else:
+                v = float(rv)
+                if da is None:
+                    changed = True
+                    DetectionAttribute.objects.create(**filters, value=v)
+                else:
+                    changed = da.value != v
+                    if changed:
+                        da.value = v
+                        da.save()
+
+            frame_content = unit.get('frame_content')
+            fn = entity.get_filename()
+            if frame_content:
+                decoded = base64.decodebytes(str.encode(frame_content))
+                path = entity.get_filepath()
+                if not os.path.exists(path):
+                    os.makedirs(path)
+
+                write_file = False
+                if os.path.exists(fn):
+                    data = open(fn, "rb").read()
+                    if data != decoded:
+                        write_file = True
+                        open(fn, "wb").write(decoded)
+                else:
+                    write_file = True
+
+                if write_file:
+                    changed = True
+                    open(fn, "wb").write(decoded)
+            else:
+                if os.path.exists(fn):
+                    changed = True
+                    os.remove(fn)
+
+        return changed

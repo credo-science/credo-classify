@@ -7,13 +7,11 @@ then
   exit
 fi
 
-echo 'Please extract "token" from below JSON file and set in CC_TOKEN environment variable:'
-
 for MODEL in "team" "user" "device"
 do
   FN="${CC_DIR}${MODEL}_mapping.json"
   echo "Importing: $MODEL from file: $FN ..."
-  curl --header "Content-Type: application/json" \
+  time curl --header "Content-Type: application/json" \
     --header "Authorization: Token $CC_TOKEN" \
     --request POST \
     --data @"$FN" \

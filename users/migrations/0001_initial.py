@@ -10,12 +10,12 @@ from users.models import User
 
 
 def post_migrations(arg1, arg2):
-    u = User.objects.create_user('nkg', 'nkg753@gmail.com', 'nkg')  # type: User
+    from credo_classification.settings import INIT_ADMIN_USER, INIT_ADMIN_PASS, INIT_ADMIN_EMAIL
+
+    u = User.objects.create_user(INIT_ADMIN_USER, INIT_ADMIN_EMAIL, INIT_ADMIN_PASS)  # type: User
     u.is_superuser = True
     u.is_staff = True
     u.save()
-
-    Token.objects.create(key='0000000000000000000000000000000000000000', user=u)
 
 
 class Migration(migrations.Migration):

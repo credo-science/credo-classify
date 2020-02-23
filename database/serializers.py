@@ -61,9 +61,9 @@ class PingImporterSerializer(Serializer):
     device_id = IntegerField(label=_("Device ID"))
     timestamp = IntegerField(label=_("Timestamp"))
     time_received = IntegerField(label=_("Time received"))
-    delta_time = IntegerField(label=_("Delta time"))
+    delta_time = IntegerField(label=_("Delta time"), allow_null=True)
     on_time = IntegerField(label=_("On time"))
-    metadata = CharField(label=_("Metadata"))
+    metadata = CharField(label=_("Metadata"), allow_blank=True, allow_null=True)
 
 
 class PingFileSerializer(Serializer):
@@ -84,18 +84,20 @@ class DetectionImporterSerializer(Serializer):
     time_received = IntegerField(label=_("Time received"))
     source = CharField(label=_("Source"))
     provider = CharField(label=_("Provider"))
-    metadata = CharField(label=_("Metadata"))
+    metadata = CharField(label=_("Metadata"), allow_blank=True, allow_null=True)
 
     # stored in DetectionAttribute
     accuracy = FloatField(label=_("Team ID"))
     latitude = FloatField(label=_("Team ID"))
     longitude = FloatField(label=_("Team ID"))
     altitude = FloatField(label=_("Team ID"))
-    frame_content = CharField(label=_("Metadata"))
     height = IntegerField(label=_("Team ID"))
     width = IntegerField(label=_("Team ID"))
-    x = IntegerField(label=_("Team ID"))
-    y = IntegerField(label=_("Team ID"))
+    x = IntegerField(label=_("Team ID"), allow_null=True)
+    y = IntegerField(label=_("Team ID"), allow_null=True)
+
+    # stored in file system
+    frame_content = CharField(label=_("Metadata"))
 
 
 class DetectionFileSerializer(Serializer):

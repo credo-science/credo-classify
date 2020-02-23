@@ -11,15 +11,15 @@ class Attribute(models.Model):
 
     All attributes store float64 value (15+ significant digits).
     """
-    name = models.CharField(max_length=255)
-    description = models.TextField()
+    name = models.CharField(max_length=255, unique=True)
+    description = models.TextField(default='', blank=True)
     author = models.ForeignKey(User, on_delete=models.PROTECT)
 
     def __str__(self) -> str:
         return 'Attribute: %s' % self.name
 
     class Meta(DjangoPlusViewPermissionsMixin):
-        unique_together = [['name']]
+        pass
 
 
 class Relation(models.Model):
@@ -30,7 +30,7 @@ class Relation(models.Model):
     evaluation='x * 2', where x was replaced by src attribute value
     """
     name = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(default='', blank=True)
     author = models.ForeignKey(User, on_delete=models.PROTECT)
 
     src = models.ForeignKey(Attribute, on_delete=models.PROTECT, related_name='relation_src')
