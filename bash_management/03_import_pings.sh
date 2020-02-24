@@ -14,7 +14,7 @@ do
     --header "Authorization: Token $CC_TOKEN" \
     --request POST \
     --data @"$FN" \
-    "${CC_HOST}api/import/pings/"
+    "${CC_HOST}api/import/pings/?nocheck=1"
   echo
   echo
 done

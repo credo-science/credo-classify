@@ -1,6 +1,6 @@
 import base64
 import os
-from typing import Any
+from typing import Any, Optional
 
 from django.db.models import Model
 from rest_framework import permissions
@@ -29,6 +29,9 @@ class GenericImporter(APIView):
 
     permission_classes = [permissions.IsAdminUser]
 
+    def nocheck_exists(self, request) -> bool:
+        return bool(request.query_params.get('nocheck'))
+
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -38,6 +41,8 @@ class GenericImporter(APIView):
         updated = 0
         not_changed = 0
 
+        check = not self.nocheck_exists(request)
+
         for unit in serializer.validated_data.get(self.unit_name, []):
             parsed += 1
             v_id = unit.get('id')
@@ -45,11 +50,12 @@ class GenericImporter(APIView):
             for f in self.fields_to_import:
                 v_fields[f] = unit.get(f)
 
-            v = self.model_class.objects.filter(pk=v_id).first()  # type: Model
+            v = self.model_class.objects.filter(pk=v_id).first() if check else None  # type: Optional[Model]
+            bulk = []
             if v is None:
                 inserted += 1
                 e = self.model_class.objects.create(id=v_id, **v_fields)
-                self.import_as_attributes(e, unit)
+                self.import_as_attributes(e, unit, check)
             else:
                 changed = False
                 for key, value in v_fields.items():
@@ -57,7 +63,7 @@ class GenericImporter(APIView):
                         changed = True
                         setattr(v, key, value)
 
-                attr_changed = self.import_as_attributes(v, unit)
+                attr_changed = self.import_as_attributes(v, unit, check)
 
                 if changed:
                     v.save()
@@ -73,7 +79,7 @@ class GenericImporter(APIView):
             'not_changed': not_changed
         })
 
-    def import_as_attributes(self, entity: Model, unit: dict) -> bool:
+    def import_as_attributes(self, entity: Model, unit: dict, check: bool) -> bool:
         return False
 
 
@@ -118,7 +124,7 @@ class ImportDetections(GenericImporter):
         for f in self.attributes_fields:
             self.attributes_buff[f] = Attribute.objects.filter(name=f).first()
 
-    def import_as_attributes(self, entity: Detection, unit: dict) -> bool:
+    def import_as_attributes(self, entity: Detection, unit: dict, check: bool) -> bool:
         changed = False
         user = self.request.user
         for f in self.attributes_fields:
@@ -128,7 +134,7 @@ class ImportDetections(GenericImporter):
                 'author': user
             }
 
-            da = DetectionAttribute.objects.filter(**filters).first()
+            da = DetectionAttribute.objects.filter(**filters).first() if check else None  # type: Optional[DetectionAttribute]
             rv = unit.get(f)
             if rv is None:
                 if da is not None:
@@ -154,7 +160,7 @@ class ImportDetections(GenericImporter):
                     os.makedirs(path)
 
                 write_file = False
-                if os.path.exists(fn):
+                if check and os.path.exists(fn):
                     data = open(fn, "rb").read()
                     if data != decoded:
                         write_file = True

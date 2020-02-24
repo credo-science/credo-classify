@@ -15,7 +15,7 @@ do
     --header "Authorization: Token $CC_TOKEN" \
     --request POST \
     --data @"$FN" \
-    "${CC_HOST}api/import/${MODEL}s/"
+    "${CC_HOST}api/import/${MODEL}s/?nocheck=1"
   echo
   echo
 done

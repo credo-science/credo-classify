@@ -97,7 +97,7 @@ class DetectionImporterSerializer(Serializer):
     y = IntegerField(label=_("Team ID"), allow_null=True)
 
     # stored in file system
-    frame_content = CharField(label=_("Metadata"))
+    frame_content = CharField(label=_("Metadata"), allow_blank=True, allow_null=True)
 
 
 class DetectionFileSerializer(Serializer):
