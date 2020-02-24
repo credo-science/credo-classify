@@ -33,6 +33,13 @@ class GenericImporter(APIView):
         return bool(request.query_params.get('nocheck'))
 
     def post(self, request, *args, **kwargs):
+        """
+        Import fields_to_import values parsed by serializer_class from unit_name array to model_class model.
+
+        Performance optimizations:
+        - bulk insertion for new rows
+        - if /?nocheck=1 then no checked existing row
+        """
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -136,6 +143,14 @@ class ImportDetections(GenericImporter):
             self.attributes_buff[f] = Attribute.objects.filter(name=f).first()
 
     def import_as_attributes(self, entity: Detection, unit: dict, check: bool) -> bool:
+        """
+        Import rest attributes of Detection to DetectionAttribute model.
+
+        Performance optimizations:
+        - bulk insertion for new rows, bulk stored in self.bulk object field
+        - if /?nocheck=1 then no checked existing row
+        - cache of path existing in self.path_exist object field
+        """
         changed = False
         user = self.request.user
         for f in self.attributes_fields:
