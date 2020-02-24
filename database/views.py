@@ -42,6 +42,7 @@ class GenericImporter(APIView):
         not_changed = 0
 
         check = not self.nocheck_exists(request)
+        bulk = []
 
         for unit in serializer.validated_data.get(self.unit_name, []):
             parsed += 1
@@ -51,10 +52,10 @@ class GenericImporter(APIView):
                 v_fields[f] = unit.get(f)
 
             v = self.model_class.objects.filter(pk=v_id).first() if check else None  # type: Optional[Model]
-            bulk = []
             if v is None:
                 inserted += 1
-                e = self.model_class.objects.create(id=v_id, **v_fields)
+                e = self.model_class(id=v_id, **v_fields)
+                bulk.append(e)
                 self.import_as_attributes(e, unit, check)
             else:
                 changed = False
@@ -72,6 +73,11 @@ class GenericImporter(APIView):
                 else:
                     not_changed += 1
 
+        if len(bulk):
+            self.model_class.objects.bulk_create(bulk)
+
+        self.bulk_attributes()
+
         return Response({
             'parsed': parsed,
             'inserted': inserted,
@@ -81,6 +87,9 @@ class GenericImporter(APIView):
 
     def import_as_attributes(self, entity: Model, unit: dict, check: bool) -> bool:
         return False
+
+    def bulk_attributes(self):
+        pass
 
 
 class ImportTeams(GenericImporter):
@@ -118,6 +127,8 @@ class ImportDetections(GenericImporter):
     fields_to_import = ['timestamp', 'time_received', 'device_id', 'user_id', 'team_id', 'source', 'provider', 'metadata']
     attributes_fields = ['accuracy', 'latitude', 'longitude', 'altitude', 'height', 'width', 'x', 'y']
     attributes_buff = {}
+    bulk = []
+    path_exist = set()
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -144,7 +155,7 @@ class ImportDetections(GenericImporter):
                 v = float(rv)
                 if da is None:
                     changed = True
-                    DetectionAttribute.objects.create(**filters, value=v)
+                    self.bulk.append(DetectionAttribute(**filters, value=v))
                 else:
                     changed = da.value != v
                     if changed:
@@ -156,8 +167,9 @@ class ImportDetections(GenericImporter):
             if frame_content:
                 decoded = base64.decodebytes(str.encode(frame_content))
                 path = entity.get_filepath()
-                if not os.path.exists(path):
+                if path not in self.path_exist and not os.path.exists(path):
                     os.makedirs(path)
+                    self.path_exist.add(path)
 
                 write_file = False
                 if check and os.path.exists(fn):
@@ -177,3 +189,7 @@ class ImportDetections(GenericImporter):
                     os.remove(fn)
 
         return changed
+
+    def bulk_attributes(self):
+        if len(self.bulk):
+            DetectionAttribute.objects.bulk_create(self.bulk)
