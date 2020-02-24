@@ -124,7 +124,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # TODO: use self token authentication for many tokens for one user support (for pairing clients separately)
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ],
+    'EXCEPTION_HANDLER': 'credo_classification.drf.api_500_handler'
 }
 
 
