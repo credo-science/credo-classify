@@ -208,3 +208,4 @@ class ImportDetections(GenericImporter):
     def bulk_attributes(self):
         if len(self.bulk):
             DetectionAttribute.objects.bulk_create(self.bulk)
+            self.bulk = []
