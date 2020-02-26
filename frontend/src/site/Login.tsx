@@ -7,7 +7,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { useFormikApi } from "../api/apiHooks";
 import { AppContext } from "../context/AppContext";
 import { LoginRequest, LoginResponse } from "../api/rqre";
-import { FormStatusAlert } from "../layout/forms";
+import { FormStatusAlert, VCheck, VField, VSubmitButton } from "../layout/forms";
 
 const containerStyle = { maxWidth: 540, marginTop: 60 };
 
@@ -41,50 +41,24 @@ const Login: React.FC = () => {
               </Card.Title>
               <FormStatusAlert status={status} isSubmitting={isSubmitting} />
               <Form noValidate onSubmit={handleSubmit}>
-                <Form.Group controlId="formLogin">
-                  <Form.Label>
-                    <FormattedMessage id="login.loginFieldLabel" defaultMessage="Your login" />
-                  </Form.Label>
-                  <Form.Control
-                    placeholder="Login"
-                    type="text"
-                    name="username"
-                    isValid={touched.username && !errors.username}
-                    isInvalid={!!errors.username}
-                    {...getFieldProps("username")}
-                  />
-                  <Form.Control.Feedback type="invalid">{errors.username}</Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group controlId="formPassword">
-                  <Link to="/forgot" className="float-right">
-                    <FormattedMessage id="login.forgotLink" defaultMessage="Forgot?" />
-                  </Link>
-                  <Form.Label>
-                    <FormattedMessage id="login.passwordFieldLabel" defaultMessage="Your password" />
-                  </Form.Label>
-                  <Form.Control
-                    placeholder="******"
-                    type="password"
-                    name="password"
-                    isValid={touched.password && !errors.password}
-                    isInvalid={!!errors.password}
-                    {...getFieldProps("password")}
-                  />
-                  <Form.Control.Feedback type="invalid">{errors.password}</Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group controlId="formRemember">
-                  <Form.Check
-                    type="checkbox"
-                    label={<FormattedMessage id="login.rememberCheckbox" defaultMessage="Save password" />}
-                    name="remember"
-                    {...getFieldProps("remember")}
-                  />
-                </Form.Group>
-                <Form.Group>
-                  <Button variant="primary" type="submit" block disabled={!isValid || isSubmitting}>
-                    <FormattedMessage id="login.submitButton" defaultMessage="Login" />
-                  </Button>
-                </Form.Group>
+                <VField labelId="login.loginFieldLabel" labelDm="Your login" placeholder="login" type="text" name="username" />
+
+                <VField
+                  head={
+                    <Link to="/forgot" className="float-right">
+                      <FormattedMessage id="login.forgotLink" defaultMessage="Forgot?" />
+                    </Link>
+                  }
+                  labelId="login.passwordFieldLabel"
+                  labelDm="Your password"
+                  placeholder="******"
+                  type="password"
+                  name="password"
+                />
+
+                <VCheck name="remember" labelId="login.rememberCheckbox" labelDm="Save password" />
+
+                <VSubmitButton labelId="login.submitButton" labelDm="Login" />
               </Form>
             </Card.Body>
           </Card>
