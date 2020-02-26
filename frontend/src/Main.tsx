@@ -22,10 +22,9 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, AppContextT
   };
 
   toggleLoginState = (token: string | null, user: User | null, remember: boolean) => {
-    if (token == null) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-    } else if (remember) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    if (token !== null && remember) {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
     }
