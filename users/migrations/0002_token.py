@@ -1,7 +1,6 @@
 from django.db import migrations
-from rest_framework.authtoken.models import Token
 
-from users.models import User
+from users.models import User, Token
 
 
 def post_migrations(arg1, arg2):
@@ -14,7 +13,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('users', '0001_initial'),
-        ('authtoken', '0001_initial'),
     ]
 
     operations = [

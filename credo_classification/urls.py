@@ -17,15 +17,15 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from rest_framework.authtoken import views
 
 from database.views import ImportTeams, ImportCredoUsers, ImportDevices, ImportPings, ImportDetections
+from users.views import obtain_auth_token
 
 router = routers.DefaultRouter()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^api-token-auth/', views.obtain_auth_token),
+    url(r'^api-token-auth/', obtain_auth_token),
     url(r'^api/import/teams/', ImportTeams.as_view()),
     url(r'^api/import/users/', ImportCredoUsers.as_view()),
     url(r'^api/import/devices/', ImportDevices.as_view()),

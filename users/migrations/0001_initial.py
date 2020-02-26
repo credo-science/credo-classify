@@ -4,7 +4,7 @@ import django.contrib.auth.models
 import django.contrib.auth.validators
 from django.db import migrations, models
 import django.utils.timezone
-from rest_framework.authtoken.models import Token
+from django.conf import settings
 
 from users.models import User
 
@@ -51,6 +51,18 @@ class Migration(migrations.Migration):
             managers=[
                 ('objects', django.contrib.auth.models.UserManager()),
             ],
+        ),
+        migrations.CreateModel(
+            name='Token',
+            fields=[
+                ('key', models.CharField(max_length=40, primary_key=True, serialize=False, verbose_name='Key')),
+                ('created', models.DateTimeField(auto_now_add=True, verbose_name='Created')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User')),
+            ],
+            options={
+                'verbose_name': 'Token',
+                'verbose_name_plural': 'Tokens',
+            },
         ),
         migrations.RunPython(post_migrations),
     ]
