@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Nav, Navbar } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { FormattedMessage } from "react-intl";
+import "flag-icon-css/css/flag-icon.css";
+
+import { AppContext } from "../context/AppContext";
 
 const Menu: React.FC = () => {
+  const { toggleLanguage } = useContext(AppContext);
+
   return (
     <Navbar collapseOnSelect expand="lg" bg="light">
       <LinkContainer to="/">
@@ -18,6 +23,10 @@ const Menu: React.FC = () => {
               <FormattedMessage id="menu.sign_in" defaultMessage="Sign in" />
             </Nav.Link>
           </LinkContainer>
+          <div>
+            <span className="flag-icon flag-icon-gb mr-1" title="English language" onClick={() => toggleLanguage("en")} />
+            <span className="flag-icon flag-icon-pl" title="Język polski" onClick={() => toggleLanguage("pl")} />
+          </div>
         </Nav>
       </Navbar.Collapse>
     </Navbar>
