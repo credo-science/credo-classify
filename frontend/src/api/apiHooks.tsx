@@ -36,10 +36,16 @@ export function useFormikApi<Rq, Re>(
         })
       });
 
+      setIsLoading(false);
       setData(result.data);
+      formikHelpers.setSubmitting(false);
+
       formikHelpers.setStatus({ status: "success", message: f({ id: "message.success", defaultMessage: "Success" }) } as FormikStatus);
       onSuccess?.(values, result.data);
     } catch (error) {
+      setIsLoading(false);
+      formikHelpers.setSubmitting(false);
+
       const { response } = error as AxiosError<ErrorResponse>;
       if (response) {
         if (response.data) {
@@ -65,12 +71,9 @@ export function useFormikApi<Rq, Re>(
     }
 
     canceler.current = null;
-    formikHelpers.setSubmitting(false);
-    setIsLoading(false);
   }
 
   useEffect(() => {
-    console.log("useFormikApi: useEffect");
     return () => {
       if (canceler.current != null) {
         canceler.current();
