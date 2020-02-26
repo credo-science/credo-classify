@@ -1,29 +1,17 @@
 import React, { useContext, useMemo } from "react";
-import { Container, Card, Form, Button, Alert } from "react-bootstrap";
+import { Container, Card, Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { FormattedMessage, useIntl } from "react-intl";
-import { FormikStatus, useFormikApi } from "../api/apiHooks";
+import { useFormikApi } from "../api/apiHooks";
 import { AppContext } from "../context/AppContext";
 import { LoginRequest, LoginResponse } from "../api/rqre";
+import { FormStatusAlert } from "../layout/forms";
 
 const containerStyle = { maxWidth: 540, marginTop: 60 };
 
 const initialValues: LoginRequest = { username: "", password: "", remember: false };
-
-const FormStatusAlert: React.FC<{ status: FormikStatus; isSubmitting: boolean }> = ({ status, isSubmitting }) => {
-  if (isSubmitting) {
-    return (
-      <Alert variant="info">
-        <FormattedMessage id="message.pending" defaultMessage="Your values is submitting to server, please wait..." />
-      </Alert>
-    );
-  } else if (status?.status) {
-    return <Alert variant={status.status}>{status.message}</Alert>;
-  }
-  return null;
-};
 
 const Login: React.FC = () => {
   const { toggleLoginState } = useContext(AppContext);
