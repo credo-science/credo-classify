@@ -5,6 +5,7 @@ import { IntlProvider } from "react-intl";
 
 import Home from "./site/Home";
 import User from "./site/User";
+import Forgot from "./site/user/Forgot";
 import { AppContextType, AppContext, defaultAppContext } from "./context/AppContext";
 import { UserEntity } from "./api/entities";
 
@@ -60,6 +61,7 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, AppContextT
             <Menu />
             <Switch>
               <Route path="/user" component={User} />
+              <Route path="/forgot" component={Forgot} />
               <Route path="/" exact component={Home} />
             </Switch>
           </Router>

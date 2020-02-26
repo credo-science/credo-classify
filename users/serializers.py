@@ -32,6 +32,25 @@ class AuthTokenSerializer(serializers.Serializer):
         return attrs
 
 
+class ResetPasswordSerializer(serializers.Serializer):
+    username = serializers.CharField(label=_("Username"))
+    email = serializers.EmailField(label=_("Email"))
+
+    def validate(self, attrs):
+        username = attrs.get('username')
+        email = attrs.get('email')
+
+        u = User.objects.filter(username=username, email=email).first()
+        if u is None:
+            msg = _('Invalid login or e-mail.')
+            raise serializers.ValidationError(msg)
+        else:
+            msg = _('Reset password is not supported yet')
+            raise serializers.ValidationError(msg)
+
+        return attrs
+
+
 class UserViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

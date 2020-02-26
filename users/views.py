@@ -1,9 +1,11 @@
 from rest_framework import permissions
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.utils.translation import gettext_lazy as _
 
 from users.models import Token
-from users.serializers import AuthTokenSerializer, UserViewSerializer
+from users.serializers import AuthTokenSerializer, UserViewSerializer, ResetPasswordSerializer
 
 
 class ObtainAuthToken(APIView):
@@ -31,3 +33,17 @@ class VoidToken(APIView):
 
 
 void_token = VoidToken.as_view()
+
+
+class ResetPassword(APIView):
+    permission_classes = ()
+    serializer_class = ResetPasswordSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # TODO: implement
+        return Response({})
+
+
+reset_password = ResetPassword.as_view()

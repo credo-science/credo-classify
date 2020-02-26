@@ -32,13 +32,14 @@ interface VFieldProps {
   head?: React.ReactNode;
 }
 
-export const VField: React.FC<VFieldProps> = ({ controlId, labelId, labelDm, placeholder, type, name }) => {
+export const VField: React.FC<VFieldProps> = ({ controlId, labelId, labelDm, placeholder, type, name, head }) => {
   const { getFieldProps, getFieldMeta } = useFormikContext();
   const meta = getFieldMeta(name);
   const cid = useHtmlId(controlId);
 
   return (
     <Form.Group controlId={cid}>
+      {head}
       <Form.Label>
         <FormattedMessage id={labelId} defaultMessage={labelDm} />
       </Form.Label>

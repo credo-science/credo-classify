@@ -19,7 +19,7 @@ from django.urls import path, include
 from rest_framework import routers
 
 from database.views import ImportTeams, ImportCredoUsers, ImportDevices, ImportPings, ImportDetections
-from users.views import obtain_auth_token, void_token
+from users.views import obtain_auth_token, void_token, reset_password
 
 router = routers.DefaultRouter()
 
@@ -27,6 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     url(r'^api-token-auth/', obtain_auth_token),
     url(r'^api/logout/', void_token),
+    url(r'^api/forgot/', reset_password),
     url(r'^api/import/teams/', ImportTeams.as_view()),
     url(r'^api/import/users/', ImportCredoUsers.as_view()),
     url(r'^api/import/devices/', ImportDevices.as_view()),

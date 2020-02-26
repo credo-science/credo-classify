@@ -14,3 +14,8 @@ export interface LoginResponse {
   token: string;
   user: UserEntity;
 }
+
+export interface ForgotRequest {
+  username: string;
+  email: string;
+}
