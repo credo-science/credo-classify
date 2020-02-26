@@ -18,5 +18,16 @@ export default {
   "message.success": "Success",
   "message.pending": "Your values is submitting to server, please wait...",
   "user.scores": "Your scores:",
-  "user.logoutButton": "Logout"
+  "user.logoutButton": "Logout",
+  "forgot.title": "Reset password",
+  "forgot.emailFieldLabel": "Your e-mail",
+  "forgot.submitButton": "Send e-mail with reset password URL",
+  "forgot.emailFieldValidation": "E-mail is required",
+  "register.title": "Register",
+  "register.firstNameFieldLabel": "Your first name",
+  "register.lastNameFieldLabel": "Your last name",
+  "register.passwordConfirmationFieldLabel": "Confirm password",
+  "register.submitButton": "Register",
+  "register.passwordComplexityValidation": "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and one special case Character",
+  "register.passwordConfirmationFieldValidation": "Passwords must match"
 };

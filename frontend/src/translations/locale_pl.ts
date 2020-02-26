@@ -18,5 +18,17 @@ export default {
   "message.success": "Serwer potwierdza: jest ok",
   "message.pending": "Trwa wysyłanie danych do serwera, proszę czekać...",
   "user.scores": "Twoje punkty:",
-  "user.logoutButton": "Wyloguj"
+  "user.logoutButton": "Wyloguj",
+  "forgot.title": "Zresetuj hasło",
+  "forgot.emailFieldLabel": "Twój e-mail",
+  "forgot.submitButton": "Wyślij e-mail linkiem do resetowania hasła",
+  "forgot.emailFieldValidation": "E-mail jest wymagany",
+  "register.title": "Rejestracja",
+  "register.firstNameFieldLabel": "Imię",
+  "register.lastNameFieldLabel": "Nazwisko",
+  "register.passwordConfirmationFieldLabel": "Potwierdź hasło",
+  "register.submitButton": "Zarejestruj",
+  "register.passwordComplexityValidation":
+    "Hasło musi składać się z co najmniej 8 znaków, z których musi być co najmniej jedna mała litera, wielka litera, cyfra i znak specjalny",
+  "register.passwordConfirmationFieldValidation": "Hasła muszą się zgadzać"
 };

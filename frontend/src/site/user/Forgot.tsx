@@ -20,7 +20,7 @@ const Forgot: React.FC = () => {
         email: yup
           .string()
           .email()
-          .required(f({ id: "login.passwordFieldValidation", defaultMessage: "Password is required" }))
+          .required(f({ id: "forgot.emailFieldValidation", defaultMessage: "E-mail is required" }))
       }),
     [f]
   );
