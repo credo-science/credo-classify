@@ -18,7 +18,7 @@ const Menu: React.FC = () => {
       <Navbar.Collapse id="responsive-navbar-nav">
         <Nav className="mr-auto" />
         <Nav>
-          <LinkContainer to="/login">
+          <LinkContainer to="/user">
             <Nav.Link>{user ? user.username : <FormattedMessage id="menu.sign_in" defaultMessage="Sign in" />}</Nav.Link>
           </LinkContainer>
           <div>

@@ -1,4 +1,4 @@
-import { User } from "./entities";
+import { UserEntity } from "./entities";
 
 export interface ErrorResponse {
   non_field_errors: string[];
@@ -12,5 +12,5 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
-  user: User;
+  user: UserEntity;
 }

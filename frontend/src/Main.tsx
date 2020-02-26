@@ -4,9 +4,9 @@ import { HashRouter as Router, Switch, Route } from "react-router-dom";
 import { IntlProvider } from "react-intl";
 
 import Home from "./site/Home";
-import Login from "./site/Login";
+import User from "./site/User";
 import { AppContextType, AppContext, defaultAppContext } from "./context/AppContext";
-import { User } from "./api/entities";
+import { UserEntity } from "./api/entities";
 
 import en from "./translations/locale_en";
 import pl from "./translations/locale_pl";
@@ -21,7 +21,7 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, AppContextT
     this.setState(() => ({ language: language }));
   };
 
-  toggleLoginState = (token: string | null, user: User | null, remember: boolean) => {
+  toggleLoginState = (token: string | null, user: UserEntity | null, remember: boolean) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     if (token !== null && remember) {
@@ -31,7 +31,7 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, AppContextT
     this.setState(() => ({ token: token, user: user }));
   };
 
-  updateUser = (user: User) => {
+  updateUser = (user: UserEntity) => {
     if (localStorage.getItem("token")) {
       localStorage.setItem("user", JSON.stringify(user));
     }
@@ -59,7 +59,7 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, AppContextT
           <Router>
             <Menu />
             <Switch>
-              <Route path="/login" component={Login} />
+              <Route path="/user" component={User} />
               <Route path="/" exact component={Home} />
             </Switch>
           </Router>

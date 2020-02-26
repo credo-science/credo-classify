@@ -16,5 +16,7 @@ export default {
   "message.error.server_error": "Błąd po stronie serwera, jeżeli błąd będzie się powtarzał skontaktuj się z administratorem",
   "message.error.no_connection": "Brak połączenia ze serwerem, czy internet działa?",
   "message.success": "Serwer potwierdza: jest ok",
-  "message.pending": "Trwa wysyłanie danych do serwera, proszę czekać..."
+  "message.pending": "Trwa wysyłanie danych do serwera, proszę czekać...",
+  "user.scores": "Twoje punkty:",
+  "user.logoutButton": "Wyloguj"
 };

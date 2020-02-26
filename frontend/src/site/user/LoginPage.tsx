@@ -1,19 +1,19 @@
 import React, { useContext, useMemo } from "react";
-import { Container, Card, Form, Button } from "react-bootstrap";
+import { Container, Card, Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 import { Formik } from "formik";
 import { FormattedMessage, useIntl } from "react-intl";
-import { useFormikApi } from "../api/apiHooks";
-import { AppContext } from "../context/AppContext";
-import { LoginRequest, LoginResponse } from "../api/rqre";
-import { FormStatusAlert, VCheck, VField, VSubmitButton } from "../layout/forms";
+import { useFormikApi } from "../../api/apiHooks";
+import { AppContext } from "../../context/AppContext";
+import { LoginRequest, LoginResponse } from "../../api/rqre";
+import { FormStatusAlert, VCheck, VField, VSubmitButton } from "../../layout/forms";
 
 const containerStyle = { maxWidth: 540, marginTop: 60 };
 
 const initialValues: LoginRequest = { username: "", password: "", remember: false };
 
-const Login: React.FC = () => {
+const LoginPage: React.FC = () => {
   const { toggleLoginState } = useContext(AppContext);
   const { formatMessage: f } = useIntl();
   const schema = useMemo(
@@ -29,7 +29,7 @@ const Login: React.FC = () => {
 
   return (
     <Formik validationSchema={schema} onSubmit={onSubmit} initialValues={initialValues}>
-      {({ handleSubmit, touched, errors, getFieldProps, status, isValid, isSubmitting }) => (
+      {({ handleSubmit, status, isSubmitting }) => (
         <Container style={containerStyle}>
           <Card>
             <Card.Body>
@@ -68,4 +68,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default LoginPage;

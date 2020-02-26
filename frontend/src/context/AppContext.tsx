@@ -1,13 +1,13 @@
 import React from "react";
-import { User } from "../api/entities";
+import { UserEntity } from "../api/entities";
 
 export interface AppContextType {
   language: string;
   token: string | null;
-  user: User | null;
+  user: UserEntity | null;
   toggleLanguage: (language: string) => void;
-  toggleLoginState: (token: string | null, user: User | null, remember: boolean) => void;
-  updateUser: (user: User) => void;
+  toggleLoginState: (token: string | null, user: UserEntity | null, remember: boolean) => void;
+  updateUser: (user: UserEntity) => void;
 }
 
 function getDefaultContext(): AppContextType {
