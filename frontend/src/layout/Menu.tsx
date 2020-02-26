@@ -7,7 +7,7 @@ import "flag-icon-css/css/flag-icon.css";
 import { AppContext } from "../context/AppContext";
 
 const Menu: React.FC = () => {
-  const { toggleLanguage } = useContext(AppContext);
+  const { toggleLanguage, user } = useContext(AppContext);
 
   return (
     <Navbar collapseOnSelect expand="lg" bg="light">
@@ -19,9 +19,7 @@ const Menu: React.FC = () => {
         <Nav className="mr-auto" />
         <Nav>
           <LinkContainer to="/login">
-            <Nav.Link>
-              <FormattedMessage id="menu.sign_in" defaultMessage="Sign in" />
-            </Nav.Link>
+            <Nav.Link>{user ? user.username : <FormattedMessage id="menu.sign_in" defaultMessage="Sign in" />}</Nav.Link>
           </LinkContainer>
           <div>
             <span className="flag-icon flag-icon-gb mr-1" title="English language" onClick={() => toggleLanguage("en")} />

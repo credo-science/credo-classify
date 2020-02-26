@@ -6,7 +6,7 @@ export interface AppContextType {
   token: string | null;
   user: User | null;
   toggleLanguage: (language: string) => void;
-  toggleLoginState: (token: string | null, user: User | null) => void;
+  toggleLoginState: (token: string | null, user: User | null, remember: boolean) => void;
   updateUser: (user: User) => void;
 }
 

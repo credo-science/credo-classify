@@ -10,5 +10,11 @@ export default {
   "login.forgotLink": "Zapomniałem hasła",
   "login.passwordFieldLabel": "Twoje hasło",
   "login.rememberCheckbox": "Zapamiętaj mnie",
-  "login.submitButton": "Zaloguj"
+  "login.submitButton": "Zaloguj",
+  "login.loginFieldValidation": "Musisz wpisać login",
+  "login.passwordFieldValidation": "Musisz wpisać hasło",
+  "message.error.server_error": "Błąd po stronie serwera, jeżeli błąd będzie się powtarzał skontaktuj się z administratorem",
+  "message.error.no_connection": "Brak połączenia ze serwerem, czy internet działa?",
+  "message.success": "Serwer potwierdza: jest ok",
+  "message.pending": "Trwa wysyłanie danych do serwera, proszę czekać..."
 };

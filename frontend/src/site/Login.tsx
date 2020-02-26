@@ -1,24 +1,47 @@
-import React from "react";
-import { Container, Card, Form, Button } from "react-bootstrap";
+import React, { useContext, useMemo } from "react";
+import { Container, Card, Form, Button, Alert } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 import { Formik } from "formik";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
+import { FormikStatus, useFormikApi } from "../api/apiHooks";
+import { AppContext } from "../context/AppContext";
+import { LoginRequest, LoginResponse } from "../api/rqre";
 
 const containerStyle = { maxWidth: 540, marginTop: 60 };
 
-const schema = yup.object({
-  username: yup.string().required(),
-  password: yup.string().required(),
-  remember: yup.boolean()
-});
+const initialValues: LoginRequest = { username: "", password: "", remember: false };
 
-const initialValues = { username: "", password: "", remember: false };
+const FormStatusAlert: React.FC<{ status: FormikStatus; isSubmitting: boolean }> = ({ status, isSubmitting }) => {
+  if (isSubmitting) {
+    return (
+      <Alert variant="info">
+        <FormattedMessage id="message.pending" defaultMessage="Your values is submitting to server, please wait..." />
+      </Alert>
+    );
+  } else if (status?.status) {
+    return <Alert variant={status.status}>{status.message}</Alert>;
+  }
+  return null;
+};
 
 const Login: React.FC = () => {
+  const { toggleLoginState } = useContext(AppContext);
+  const { formatMessage: f } = useIntl();
+  const schema = useMemo(
+    () =>
+      yup.object({
+        username: yup.string().required(f({ id: "login.loginFieldValidation", defaultMessage: "Login is required" })),
+        password: yup.string().required(f({ id: "login.passwordFieldValidation", defaultMessage: "Password is required" })),
+        remember: yup.boolean()
+      }),
+    [f]
+  );
+  const { onSubmit } = useFormikApi<LoginRequest, LoginResponse>("POST", "/api-token-auth/", (re, rq) => toggleLoginState(rq.token, rq.user, re.remember));
+
   return (
-    <Formik validationSchema={schema} onSubmit={console.log} initialValues={initialValues}>
-      {({ handleSubmit, handleChange, handleBlur, values, touched, isValid, errors, getFieldProps }) => (
+    <Formik validationSchema={schema} onSubmit={onSubmit} initialValues={initialValues}>
+      {({ handleSubmit, touched, errors, getFieldProps, status, isValid, isSubmitting }) => (
         <Container style={containerStyle}>
           <Card>
             <Card.Body>
@@ -28,6 +51,7 @@ const Login: React.FC = () => {
               <Card.Title className="mb-4 mt-1">
                 <FormattedMessage id="login.title" defaultMessage="Sign in" />
               </Card.Title>
+              <FormStatusAlert status={status} isSubmitting={isSubmitting} />
               <Form noValidate onSubmit={handleSubmit}>
                 <Form.Group controlId="formLogin">
                   <Form.Label>
@@ -69,7 +93,7 @@ const Login: React.FC = () => {
                   />
                 </Form.Group>
                 <Form.Group>
-                  <Button variant="primary" type="submit" block>
+                  <Button variant="primary" type="submit" block disabled={!isValid || isSubmitting}>
                     <FormattedMessage id="login.submitButton" defaultMessage="Login" />
                   </Button>
                 </Form.Group>

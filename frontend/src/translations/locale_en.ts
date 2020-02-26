@@ -10,5 +10,11 @@ export default {
   "login.forgotLink": "Forgot?",
   "login.passwordFieldLabel": "Your password",
   "login.rememberCheckbox": "Save password",
-  "login.submitButton": "Login"
+  "login.submitButton": "Login",
+  "login.loginFieldValidation": "Login is required",
+  "login.passwordFieldValidation": "Password is required",
+  "message.error.server_error": "Server error, please contact with admin",
+  "message.error.no_connection": "No connection with server, are the internet connection working?",
+  "message.success": "Success",
+  "message.pending": "Your values is submitting to server, please wait..."
 };

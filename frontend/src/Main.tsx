@@ -21,11 +21,11 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, AppContextT
     this.setState(() => ({ language: language }));
   };
 
-  toggleLoginState = (token: string | null, user: User | null) => {
+  toggleLoginState = (token: string | null, user: User | null, remember: boolean) => {
     if (token == null) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-    } else {
+    } else if (remember) {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
     }
@@ -33,7 +33,9 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, AppContextT
   };
 
   updateUser = (user: User) => {
-    localStorage.setItem("user", JSON.stringify(user));
+    if (localStorage.getItem("token")) {
+      localStorage.setItem("user", JSON.stringify(user));
+    }
     this.setState(() => ({ user: user }));
   };
 
