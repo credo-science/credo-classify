@@ -1,39 +1,41 @@
-var fs = require("fs");
-var glob = require("glob");
-var parser = require("typescript-react-intl").default;
+/**
+ * Extract new _("???") and _('???') expressions from source code and append to ./src/translations/locale_en.ts.
+ *
+ * Run:
+ * npm run i18n-extract
+ */
+const fs = require("fs");
+const glob = require("glob");
+const { getFileName, loadTranslations, saveTranslations, mergeTranslations } = require("./utils/i18n_utils");
+const pattern = "src/**/*.@(tsx|ts|js|jsx)";
 
-function runner(pattern, cb) {
-  var results = [];
-  pattern = pattern || "src/**/*.@(tsx|ts)";
-  glob(pattern, function(err, files) {
-    if (err) {
-      throw new Error(err);
-    }
-    files.forEach((f) => {
-      var contents = fs.readFileSync(f).toString();
-      var res = parser(contents);
-      results = results.concat(res);
-    });
+let found = [];
 
-    cb && cb(results);
-  });
+function searchAndAppend(contents, found, pattern) {
+  const res = contents.match(pattern);
+  if (res) {
+    return found.concat(res);
+  }
+  return found;
 }
 
-// demo
-runner(null, function(res) {
-  var locale = {};
+const files = glob(pattern, { sync: true });
+files.forEach(f => {
+  const contents = fs.readFileSync(f).toString();
 
-  res.forEach((r) => {
-    locale[r.id] = r.defaultMessage;
-  });
-
-  // save file to disk。you can save as a json file,just change the ext and contents as you want.
-  ['en', 'pl'].forEach((r) => {
-    var fn = `./src/translations/locale_${r}.ts`;
-    var data = fs.existsSync(fn) ? JSON.parse(fs.readFileSync(fn).toString().replace('export default ', '').replace(';', '')) : {};
-    fs.writeFileSync(
-      fn,
-      `export default ${JSON.stringify({...locale, ...data}, null, 2)};\n`,
-    );
-  });
+  found = searchAndAppend(contents, found, /_\("[^)]+"/g);
+  found = searchAndAppend(contents, found, /_\('[^)]+'/g);
 });
+
+let extracted = {};
+
+found.forEach(r => {
+  const id = r.substr(3, r.length - 4);
+  extracted[id] = `!untranslated! ${id}`;
+});
+
+const fn = getFileName("en");
+const data = loadTranslations(fn);
+const toSave = mergeTranslations(extracted, data);
+saveTranslations(fn, toSave);
+console.log(`Updated ${fn} file, please check changes`);

@@ -1,44 +1,50 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# CREDO-Classification PWA frontend
 
-## Available Scripts
+## Run in development environment
 
-In the project directory, you can run:
+### Requirements
 
-### `npm start`
+Installed `node` v12 or never.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Run development version
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+```shell script
+$ npm install
+$ npm run start
+```
 
-### `npm test`
+And open in browser [http://localhost:3000/](http://localhost:3000/)
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Warning!** The backend is proxying from [http://localhost:8000/](http://localhost:8000/).
+The configuration of proxy is in `package.json` in `"proxy"` field.
 
-### `npm run build`
+### Update translation files
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```shell script
+$ npm run i18n
+```
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+Extracts new messages IDs and add append to `./src/translations/locale_en.ts`. You should fill its in english language.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Build production version
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```shell script
+$ npm run build
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+The output files you found in `./build` directory.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Translate to another languages
 
-## Learn More
+Files with translated messages are stored in `./src/translations` as `locale_XX.ts` pattern where `XX` is 2-letters or `xx-XX` pattern language code.
+Language code should be compatible with `navigator.language` JavaScript browser's variable because it is checked as default language.
+If `xx-XX` pattern translation is not provided then app try to cut code to `xx` and load translation.
+If translation is not provided too then app load `en` translation.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### How to translate
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Copy `./src/translations/locale_en.ts`. Translate all messages i quote on right of colon and send translated file to us.
+
+We must add file with your translations and add your language to supported languages list in app. 
