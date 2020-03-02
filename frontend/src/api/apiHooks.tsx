@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useContext } from "react";
 import { FormikHelpers } from "formik/dist/types";
 import axios, { AxiosError, AxiosResponse, Canceler, Method } from "axios";
 import { ErrorResponse } from "./rqre";
-import { useIntl } from "react-intl";
 import { AppContext } from "../context/AppContext";
+import { useI18n } from "../utils";
 
 export interface FormikStatus {
   status?: "primary" | "secondary" | "success" | "danger" | "warning" | "info" | "light" | "dark";
@@ -18,7 +18,7 @@ export function useFormikApi<Rq, Re>(
 ): { data: Re | null; onSubmit: (values: Rq, formikHelpers: FormikHelpers<Rq>) => void } {
   const [data, setData] = useState<Re | null>(null);
   const canceler = useRef<Canceler | null>(null);
-  const { formatMessage: f } = useIntl();
+  const _ = useI18n();
   const { token } = useContext(AppContext);
 
   async function onSubmit(values: Rq, formikHelpers: FormikHelpers<Rq>) {
@@ -40,7 +40,7 @@ export function useFormikApi<Rq, Re>(
       setData(result.data);
       formikHelpers.setSubmitting(false);
 
-      formikHelpers.setStatus({ status: "success", message: f({ id: "message.success", defaultMessage: "Success" }) } as FormikStatus);
+      formikHelpers.setStatus({ status: "success", message: _("msg.conn.s") } as FormikStatus);
       onSuccess?.(values, result.data);
     } catch (error) {
       if (!axios.isCancel(error)) {
@@ -54,18 +54,18 @@ export function useFormikApi<Rq, Re>(
             } else {
               formikHelpers.setStatus({
                 status: "danger",
-                message: f({ id: "message.error.server_error", defaultMessage: "Server error, please contact with admin" })
+                message: _("msg.conn.e.srv")
               });
             }
           } else {
             formikHelpers.setStatus({
               status: "danger",
-              message: f({ id: "message.error.server_error", defaultMessage: "Server error, please contact with admin" })
+              message: _("msg.conn.e.srv")
             });
           }
           onFail?.(values, response.data, formikHelpers);
         } else {
-          formikHelpers.setStatus({ status: "danger", message: f({ id: "message.error.no_connection", defaultMessage: "No connection with server" }) });
+          formikHelpers.setStatus({ status: "danger", message: _("msg.conn.e") });
           onFail?.(values, null, formikHelpers);
         }
       }
@@ -96,7 +96,7 @@ export function useApi<Rq, Re>(
   const [data, setData] = useState<Re | null>(null);
   const [errors, setErrors] = useState<Re | ErrorResponse | null>(null);
   const canceler = useRef<Canceler | null>(null);
-  const { formatMessage: f } = useIntl();
+  const _ = useI18n();
   const { token } = useContext(AppContext);
 
   async function onQuery(values: Rq) {
@@ -132,12 +132,12 @@ export function useApi<Rq, Re>(
             setErrors(response.data);
           } else {
             setErrors({
-              non_field_errors: [f({ id: "message.error.server_error", defaultMessage: "Server error, please contact with admin" })]
+              non_field_errors: [_("msg.conn.e.srv")]
             });
           }
           onFail?.(values, response.data);
         } else {
-          setErrors({ non_field_errors: [f({ id: "message.error.no_connection", defaultMessage: "No connection with server" })] });
+          setErrors({ non_field_errors: [_("msg.conn.e.srv")] });
           onFail?.(values, null);
         }
       }

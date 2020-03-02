@@ -3,11 +3,11 @@ import { Container, Card, Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 import { Formik } from "formik";
-import { FormattedMessage, useIntl } from "react-intl";
 import { useFormikApi } from "../../api/apiHooks";
 import { AppContext } from "../../context/AppContext";
 import { LoginRequest, LoginResponse } from "../../api/rqre";
 import { FormStatusAlert, VCheck, VField, VSubmitButton } from "../../layout/forms";
+import { useI18n } from "../../utils";
 
 const containerStyle = { maxWidth: 540, marginTop: 60 };
 
@@ -15,15 +15,17 @@ const initialValues: LoginRequest = { username: "", password: "", remember: fals
 
 const LoginPage: React.FC = () => {
   const { toggleLoginState } = useContext(AppContext);
-  const { formatMessage: f } = useIntl();
+  const _ = useI18n();
+
+  const req = _("msg.inv.req");
   const schema = useMemo(
     () =>
       yup.object({
-        username: yup.string().required(f({ id: "login.loginFieldValidation", defaultMessage: "Login is required" })),
-        password: yup.string().required(f({ id: "login.passwordFieldValidation", defaultMessage: "Password is required" })),
+        username: yup.string().required(req),
+        password: yup.string().required(req),
         remember: yup.boolean()
       }),
-    [f]
+    [req]
   );
   const { onSubmit } = useFormikApi<LoginRequest, LoginResponse>("POST", "/api-token-auth/", (re, rq) => toggleLoginState(rq.token, rq.user, re.remember));
 
@@ -34,31 +36,28 @@ const LoginPage: React.FC = () => {
           <Card>
             <Card.Body>
               <Link to="/register" className="float-right btn btn-outline-primary">
-                <FormattedMessage id="login.registerButton" defaultMessage="Sign up" />
+                {_("user_login.register")}
               </Link>
-              <Card.Title className="mb-4 mt-1">
-                <FormattedMessage id="login.title" defaultMessage="Sign in" />
-              </Card.Title>
+              <Card.Title className="mb-4 mt-1">{_("user_login.title")}</Card.Title>
               <FormStatusAlert status={status} isSubmitting={isSubmitting} />
               <Form noValidate onSubmit={handleSubmit}>
-                <VField labelId="login.loginFieldLabel" labelDm="Your login" placeholder="login" type="text" name="username" />
+                <VField label={_("user.login")} placeholder="login" type="text" name="username" />
 
                 <VField
                   head={
                     <Link to="/forgot" className="float-right">
-                      <FormattedMessage id="login.forgotLink" defaultMessage="Forgot?" />
+                      {_("user_login.forgot")}
                     </Link>
                   }
-                  labelId="login.passwordFieldLabel"
-                  labelDm="Your password"
+                  label={_("user.password")}
                   placeholder="******"
                   type="password"
                   name="password"
                 />
 
-                <VCheck name="remember" labelId="login.rememberCheckbox" labelDm="Save password" />
+                <VCheck name="remember" label={_("user_login.remember")} />
 
-                <VSubmitButton labelId="login.submitButton" labelDm="Login" />
+                <VSubmitButton label={_("user_login.submit")} />
               </Form>
             </Card.Body>
           </Card>

@@ -2,27 +2,30 @@ import React, { useMemo } from "react";
 import { Container, Card, Form } from "react-bootstrap";
 import * as yup from "yup";
 import { Formik } from "formik";
-import { FormattedMessage, useIntl } from "react-intl";
 import { useFormikApi } from "../../api/apiHooks";
 import { ErrorResponse, ForgotRequest } from "../../api/rqre";
 import { FormStatusAlert, VField, VSubmitButton } from "../../layout/forms";
+import { useI18n } from "../../utils";
 
 const containerStyle = { maxWidth: 540, marginTop: 60 };
 
 const initialValues: ForgotRequest = { username: "", email: "" };
 
-const Forgot: React.FC = () => {
-  const { formatMessage: f } = useIntl();
+const ForgotPage: React.FC = () => {
+  const _ = useI18n();
+
+  const inv = _("msg.inv");
+  const req = _("msg.inv.req");
   const schema = useMemo(
     () =>
       yup.object({
-        username: yup.string().required(f({ id: "login.loginFieldValidation", defaultMessage: "Login is required" })),
+        username: yup.string().required(req),
         email: yup
           .string()
-          .email()
-          .required(f({ id: "forgot.emailFieldValidation", defaultMessage: "E-mail is required" }))
+          .email(inv)
+          .required(req)
       }),
-    [f]
+    [inv, req]
   );
   const { onSubmit } = useFormikApi<ForgotRequest, ErrorResponse>("POST", "/api/forgot/");
 
@@ -32,17 +35,15 @@ const Forgot: React.FC = () => {
         <Container style={containerStyle}>
           <Card>
             <Card.Body>
-              <Card.Title className="mb-4 mt-1">
-                <FormattedMessage id="forgot.title" defaultMessage="Reset password" />
-              </Card.Title>
+              <Card.Title className="mb-4 mt-1">{_("user_forgot.title")}</Card.Title>
               <FormStatusAlert status={status} isSubmitting={isSubmitting} />
               {status?.status !== "success" && (
                 <Form noValidate onSubmit={handleSubmit}>
-                  <VField labelId="login.loginFieldLabel" labelDm="Your login" placeholder="login" type="text" name="username" />
+                  <VField label={_("user.login")} placeholder="login" type="text" name="username" />
 
-                  <VField labelId="forgot.emailFieldLabel" labelDm="Your e-mail" placeholder="email" type="email" name="email" />
+                  <VField label={_("user.email")} placeholder="email" type="email" name="email" />
 
-                  <VSubmitButton labelId="forgot.submitButton" labelDm="Send e-mail with reset password URL" />
+                  <VSubmitButton label={_("user_forgot.submit")} />
                 </Form>
               )}
             </Card.Body>
@@ -53,4 +54,4 @@ const Forgot: React.FC = () => {
   );
 };
 
-export default Forgot;
+export default ForgotPage;

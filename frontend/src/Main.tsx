@@ -3,24 +3,21 @@ import Menu from "./layout/Menu";
 import { HashRouter as Router, Switch, Route } from "react-router-dom";
 import { IntlProvider } from "react-intl";
 
-import Home from "./site/Home";
-import User from "./site/User";
-import Forgot from "./site/user/Forgot";
-import Register from "./site/user/Register";
 import { AppContextType, AppContext, defaultAppContext } from "./context/AppContext";
 import { UserEntity } from "./api/entities";
 
-import en from "./translations/locale_en";
-import pl from "./translations/locale_pl";
-import { MessageFormatElement } from "intl-messageformat-parser";
+import { ForgotPage, RegisterPage, UserPage } from "./site/user";
+import { HomePage } from "./site";
+import { Messages, getI18nMessages } from "./utils/i18n";
 
-type Messages = Record<string, string> | Record<string, MessageFormatElement[]>;
-const messages: { [lang: string]: Messages } = { en, pl };
+interface MainState extends AppContextType {
+  messages: Messages;
+}
 
-export class Main extends React.PureComponent<PropsWithChildren<{}>, AppContextType> {
+export class Main extends React.PureComponent<PropsWithChildren<{}>, MainState> {
   toggleLanguage = (language: string) => {
     localStorage.setItem("language", language);
-    this.setState(() => ({ language: language }));
+    this.setState(() => ({ language: language, messages: getI18nMessages(language) }));
   };
 
   toggleLoginState = (token: string | null, user: UserEntity | null, remember: boolean) => {
@@ -46,25 +43,24 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, AppContextT
       ...defaultAppContext,
       toggleLanguage: this.toggleLanguage,
       toggleLoginState: this.toggleLoginState,
-      updateUser: this.updateUser
+      updateUser: this.updateUser,
+      messages: getI18nMessages(defaultAppContext.language)
     };
   }
 
   render() {
-    const { language } = this.state;
-    const subLang = language.substr(0, 2);
-    const msg = messages[language] || messages[subLang] || en;
+    const { language, messages } = this.state;
 
     return (
       <AppContext.Provider value={this.state}>
-        <IntlProvider locale={language} messages={msg}>
+        <IntlProvider locale={language} messages={messages}>
           <Router>
             <Menu />
             <Switch>
-              <Route path="/user" component={User} />
-              <Route path="/forgot" component={Forgot} />
-              <Route path="/register" component={Register} />
-              <Route path="/" exact component={Home} />
+              <Route path="/user" component={UserPage} />
+              <Route path="/forgot" component={ForgotPage} />
+              <Route path="/register" component={RegisterPage} />
+              <Route path="/" exact component={HomePage} />
             </Switch>
           </Router>
         </IntlProvider>

@@ -1,17 +1,15 @@
 import React, { useMemo } from "react";
 import { FormikStatus } from "../api/apiHooks";
 import { Alert, Button, Form } from "react-bootstrap";
-import { FormattedMessage } from "react-intl";
 import { useFormikContext } from "formik";
 import { uniqueId } from "lodash";
+import { useI18n } from "../utils";
 
 export const FormStatusAlert: React.FC<{ status: FormikStatus; isSubmitting: boolean }> = ({ status, isSubmitting }) => {
+  const _ = useI18n();
+
   if (isSubmitting) {
-    return (
-      <Alert variant="info">
-        <FormattedMessage id="message.pending" defaultMessage="Your values is submitting to server, please wait..." />
-      </Alert>
-    );
+    return <Alert variant="info">{_("msg.conn.p")}</Alert>;
   } else if (status?.status) {
     return <Alert variant={status.status}>{status.message}</Alert>;
   }
@@ -24,15 +22,14 @@ function useHtmlId(controlId: string | undefined = undefined) {
 
 interface VFieldProps {
   controlId?: string;
-  labelId?: string;
-  labelDm?: string;
+  label?: string;
   placeholder?: string;
   type?: string;
   name: string;
   head?: React.ReactNode;
 }
 
-export const VField: React.FC<VFieldProps> = ({ controlId, labelId, labelDm, placeholder, type, name, head }) => {
+export const VField: React.FC<VFieldProps> = ({ controlId, label, placeholder, type, name, head }) => {
   const { getFieldProps, getFieldMeta } = useFormikContext();
   const meta = getFieldMeta(name);
   const cid = useHtmlId(controlId);
@@ -40,9 +37,7 @@ export const VField: React.FC<VFieldProps> = ({ controlId, labelId, labelDm, pla
   return (
     <Form.Group controlId={cid}>
       {head}
-      <Form.Label>
-        <FormattedMessage id={labelId} defaultMessage={labelDm} />
-      </Form.Label>
+      <Form.Label>{label}</Form.Label>
       <Form.Control
         placeholder={placeholder}
         type={type || "text"}
@@ -58,34 +53,32 @@ export const VField: React.FC<VFieldProps> = ({ controlId, labelId, labelDm, pla
 
 interface VCheckProps {
   controlId?: string;
-  labelId?: string;
-  labelDm?: string;
+  label?: string;
   name: string;
 }
 
-export const VCheck: React.FC<VFieldProps> = ({ controlId, labelId, labelDm, name }) => {
+export const VCheck: React.FC<VCheckProps> = ({ controlId, label, name }) => {
   const { getFieldProps } = useFormikContext();
   const cid = useHtmlId(controlId);
 
   return (
     <Form.Group controlId={cid}>
-      <Form.Check type="checkbox" label={<FormattedMessage id={labelId} defaultMessage={labelDm} />} name={name} {...getFieldProps(name)} />
+      <Form.Check type="checkbox" label={label} name={name} {...getFieldProps(name)} />
     </Form.Group>
   );
 };
 
 interface VSubmitButtonProps {
-  labelId?: string;
-  labelDm?: string;
+  label?: string;
 }
 
-export const VSubmitButton: React.FC<VSubmitButtonProps> = ({ labelId, labelDm }) => {
+export const VSubmitButton: React.FC<VSubmitButtonProps> = ({ label }) => {
   const { isValid, isSubmitting } = useFormikContext();
 
   return (
     <Form.Group>
       <Button variant="primary" type="submit" block disabled={!isValid || isSubmitting}>
-        <FormattedMessage id={labelId} defaultMessage={labelDm} />
+        {label}
       </Button>
     </Form.Group>
   );
