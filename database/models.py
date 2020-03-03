@@ -1,3 +1,5 @@
+import os
+import urllib.parse
 from django.db import models
 
 from credo_classification.drf import DjangoPlusViewPermissionsMixin
@@ -75,31 +77,39 @@ class Detection(models.Model):
     def __str__(self):
         return "Detection %s" % self.id
 
-    def get_filepath(self) -> str:
+    def get_file_name(self):
+        ext = 'dat'
+        if self.mime == 'image/png':
+            ext = 'png'
+
+        return '%09d.%s' % (self.id, ext)
+
+    def get_file_localdir(self):
+        top = '%04d' % int(self.id / 100000000)
+        middle = '%04d' % int(self.id / 10000)
+        return os.path.join(top, middle)
+
+    def get_file_dir(self) -> str:
         """
         Directory where file with frame_content was stored.
         :return: absolute path for directory
         """
         from credo_classification.settings import MEDIA_ROOT
-        import os
+        return os.path.join(MEDIA_ROOT, self.get_file_localdir())
 
-        top = '%04d' % int(self.id / 100000000)
-        middle = '%04d' % int(self.id / 10000)
-
-        return os.path.join(MEDIA_ROOT, top, middle)
-
-    def get_filename(self) -> str:
+    def get_file_absolute(self) -> str:
         """
         File name where frame_content was stored.
         :return: absolute path for file with decoded data
         """
         import os
 
-        ext = 'dat'
-        if self.mime == 'image/png':
-            ext = 'png'
+        return os.path.join(self.get_file_dir(), self.get_file_name())
 
-        return os.path.join(self.get_filepath(), '%09d.%s' % (self.id, ext))
+    def get_file_url(self) -> str:
+        from credo_classification.settings import MEDIA_URL
+        url = urllib.parse.urljoin(MEDIA_URL, self.get_file_localdir()) + '/'
+        return urllib.parse.urljoin(url, self.get_file_name())
 
     class Meta(DjangoPlusViewPermissionsMixin):
         pass

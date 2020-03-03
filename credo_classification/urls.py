@@ -13,15 +13,20 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.static import static
 from rest_framework import routers
 
+from classify.views import random_to_classify
 from database.views import ImportTeams, ImportCredoUsers, ImportDevices, ImportPings, ImportDetections
+from definitions.views import AttributeViewSet
 from users.views import obtain_auth_token, void_token, reset_password
 
 router = routers.DefaultRouter()
+router.register(r'attributes', AttributeViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,5 +38,6 @@ urlpatterns = [
     url(r'^api/import/devices/', ImportDevices.as_view()),
     url(r'^api/import/pings/', ImportPings.as_view()),
     url(r'^api/import/detections/', ImportDetections.as_view()),
+    url(r'^api/classify/random/', random_to_classify),
     url(r'^api/', include(router.urls))
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

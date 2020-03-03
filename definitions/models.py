@@ -1,5 +1,6 @@
 from django.db import models
 from seval import safe_eval
+from django.utils.translation import gettext_lazy as _
 
 from credo_classification.drf import DjangoPlusViewPermissionsMixin
 from users.models import User
@@ -11,15 +12,25 @@ class Attribute(models.Model):
 
     All attributes store float64 value (15+ significant digits).
     """
-    name = models.CharField(max_length=255, unique=True)
-    description = models.TextField(default='', blank=True)
-    author = models.ForeignKey(User, on_delete=models.PROTECT)
+    KIND_CHOICES = (
+        ('b', _('Build-in')),
+        ('c', _('Classification by user')),
+        ('o', _('Others')),
+    )
+
+    name = models.CharField(max_length=255, unique=True, verbose_name=_('Name'))
+    description = models.TextField(default='', blank=True, verbose_name=_('Description'))
+    author = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name=_('Author'))
+    active = models.BooleanField(default=False, verbose_name=_('Active'))
+    kind = models.CharField(max_length=1, default='o', choices=KIND_CHOICES, verbose_name=_('Kind'))
 
     def __str__(self) -> str:
-        return 'Attribute: %s' % self.name
+        return _('Attribute: %s') % self.name
 
     class Meta(DjangoPlusViewPermissionsMixin):
-        pass
+        verbose_name = _('Attribute')
+        verbose_name_plural = _('Attributes')
+        ordering = ['name']
 
 
 class Relation(models.Model):

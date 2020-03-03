@@ -36,6 +36,7 @@ class CredoUsersFileSerializer(Serializer):
 class DeviceSerializer(ModelSerializer):
     class Meta:
         model = Device
+        fields = '__all__'
 
 
 class DeviceImporterSerializer(Serializer):

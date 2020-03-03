@@ -1,4 +1,7 @@
+from typing import Any
+
 from django.contrib.auth import authenticate
+from django.db.models.base import Model
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 
@@ -48,6 +51,7 @@ class ResetPasswordSerializer(serializers.Serializer):
             msg = _('Reset password is not supported yet')
             raise serializers.ValidationError(msg)
 
+        # FIXME: unimplemented
         return attrs
 
 
@@ -55,3 +59,15 @@ class UserViewSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ['password']
+
+
+class UserEditSerializer(serializers.ModelSerializer):
+    def update(self, instance: Model, validated_data: Any) -> Any:
+        return super().update(instance, validated_data)
+
+    def create(self, vd: dict) -> User:
+        username = vd.get('username')
+        return User.objects.create_user()
+
+    class Meta:
+        model = User

@@ -178,10 +178,10 @@ class ImportDetections(GenericImporter):
                         da.save()
 
             frame_content = unit.get('frame_content')
-            fn = entity.get_filename()
+            fn = entity.get_file_absolute()
             if frame_content:
                 decoded = base64.decodebytes(str.encode(frame_content))
-                path = entity.get_filepath()
+                path = entity.get_file_dir()
                 if path not in self.path_exist and not os.path.exists(path):
                     os.makedirs(path)
                     self.path_exist.add(path)

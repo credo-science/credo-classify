@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from commons.serialization import SafeModelViewSet
+from definitions.models import Attribute
+from definitions.serializers import AttributeSerializer
 
-# Create your views here.
+
+class AttributeViewSet(SafeModelViewSet):
+    queryset = Attribute.objects.all()
+    serializer_class = AttributeSerializer
+    filterset_fields = '__all__'

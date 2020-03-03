@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     # Django REST framework
     'rest_framework',
+    'rest_framework_filters',
 
     # Project apps
     'users',
@@ -125,6 +126,11 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'credo_classification.auth.MyTokenAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework_filters_nkg.backends.ComplexFilterNkgBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter'
     ],
     'EXCEPTION_HANDLER': 'credo_classification.drf.api_500_handler'
 }
