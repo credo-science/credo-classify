@@ -80,13 +80,13 @@ class Detection(models.Model):
         Directory where file with frame_content was stored.
         :return: absolute path for directory
         """
-        from credo_classification.settings import FILES_STORAGE
+        from credo_classification.settings import MEDIA_ROOT
         import os
 
         top = '%04d' % int(self.id / 100000000)
         middle = '%04d' % int(self.id / 10000)
 
-        return os.path.join(FILES_STORAGE, top, middle)
+        return os.path.join(MEDIA_ROOT, top, middle)
 
     def get_filename(self) -> str:
         """

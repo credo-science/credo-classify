@@ -47,10 +47,12 @@ INSTALLED_APPS = [
     'definitions',
     'database',
     'values',
+    'classify'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -59,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 ROOT_URLCONF = 'credo_classification.urls'
 
 TEMPLATES = [
@@ -145,10 +148,12 @@ AUTH_USER_MODEL = 'users.User'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+MEDIA_URL = '/files/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
 
 # Project settings:
-FILES_STORAGE = os.path.join(BASE_DIR, 'files')
 INIT_ADMIN_USER = 'nkg'
 INIT_ADMIN_PASS = 'nkg'
 INIT_ADMIN_EMAIL = 'nkg753@gmail.com'
