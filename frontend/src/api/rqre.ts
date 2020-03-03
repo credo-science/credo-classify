@@ -1,4 +1,4 @@
-import { UserEntity } from "./entities";
+import { AttributeEntity, DetectionEntity, DeviceEntity, UserEntity } from "./entities";
 
 export interface ErrorResponse {
   non_field_errors: string[];
@@ -18,4 +18,13 @@ export interface LoginResponse {
 export interface ForgotRequest {
   username: string;
   email: string;
+}
+
+interface RandomDetection extends Omit<DetectionEntity, "device"> {
+  device: DeviceEntity;
+  attributes: AttributeEntity[];
+}
+
+export interface GetRandomDetectionResponse {
+  detections: RandomDetection[];
 }

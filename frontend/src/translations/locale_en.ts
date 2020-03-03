@@ -3,6 +3,7 @@ export default {
   "home.lead": "Classify cosmic-ray hits images and earn points :)",
   "home.title": "Welcome!",
   "home.website": "CREDO Website",
+  "menu.classify": "Classify",
   "menu.sign_in": "Sign in",
   "msg.conn.e": "No connection with server, are the internet connection working?",
   "msg.conn.e.srv": "Server error, please contact with admin",

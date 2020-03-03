@@ -17,7 +17,15 @@ const Menu: React.FC = () => {
       </LinkContainer>
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse id="responsive-navbar-nav">
-        <Nav className="mr-auto" />
+        <Nav className="mr-auto">
+          {user && (
+            <>
+              <LinkContainer to="/classify">
+                <Nav.Link>{_("menu.classify")}</Nav.Link>
+              </LinkContainer>
+            </>
+          )}
+        </Nav>
         <Nav>
           <LinkContainer to="/user">
             <Nav.Link>{user ? user.username : _("menu.sign_in")}</Nav.Link>

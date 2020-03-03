@@ -7,6 +7,7 @@ import { AppContextType, AppContext, defaultAppContext } from "./context/AppCont
 import { UserEntity } from "./api/entities";
 
 import { ForgotPage, RegisterPage, UserPage } from "./site/user";
+import { ClassifyPage } from "./site/classify";
 import { HomePage } from "./site";
 import { Messages, getI18nMessages } from "./utils/i18n";
 
@@ -60,6 +61,7 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, MainState> 
               <Route path="/user" component={UserPage} />
               <Route path="/forgot" component={ForgotPage} />
               <Route path="/register" component={RegisterPage} />
+              <Route path="/classify" component={ClassifyPage} />
               <Route path="/" exact component={HomePage} />
             </Switch>
           </Router>
