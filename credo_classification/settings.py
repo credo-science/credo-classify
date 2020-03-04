@@ -158,8 +158,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 MEDIA_URL = '/files/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
-
-# Project settings:
-INIT_ADMIN_USER = 'nkg'
-INIT_ADMIN_PASS = 'nkg'
-INIT_ADMIN_EMAIL = 'nkg753@gmail.com'
