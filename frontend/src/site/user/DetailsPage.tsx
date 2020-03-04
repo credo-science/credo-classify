@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from "react";
 import { AppContext } from "../../context/AppContext";
 import { Button, Card, Container } from "react-bootstrap";
-import { useApi } from "../../api/apiHooks";
+import { useApi } from "../../api/api";
 import { useI18n } from "../../utils";
 
 const containerStyle = { maxWidth: 540, marginTop: 60 };

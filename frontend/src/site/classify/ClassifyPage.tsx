@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from "react";
 import { AppContext, AppContextType } from "../../context/AppContext";
 import { Button, Card, Container } from "react-bootstrap";
-import { api, ApiError, useApi, useGet } from "../../api/apiHooks";
+import { api, ApiError, useApi, useGet } from "../../api/api";
 import { useI18n } from "../../utils";
 import { GetRandomDetectionResponse } from "../../api/rqre";
 import { withI18n, WithI18nProps } from "../../utils/i18n";
