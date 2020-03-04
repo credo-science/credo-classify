@@ -71,11 +71,11 @@ export async function api<Rq, Re>(endpoint: string, token: string | null, option
         } else {
           let err = "";
           if (response.status === 401) {
-            err = _("msg.conn.e.srv");
+            err = _("msg.conn.e.401");
           } else if (response.status === 403) {
-            err = _("msg.conn.e.srv");
+            err = _("msg.conn.e.403");
           } else if (response.status === 404) {
-            err = _("msg.conn.e.srv");
+            err = _("msg.conn.e.404");
           } else {
             err = _("msg.conn.e.srv");
           }
