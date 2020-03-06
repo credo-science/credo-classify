@@ -7,17 +7,39 @@ import { useI18n } from "../utils";
 import { I18n } from "../utils/i18n";
 import { PrimitiveType } from "intl-messageformat";
 
-export interface ApiOptions<Re = any> {
+/**
+ * Optional options for api() async method
+ */
+export interface ApiOptions<Pr = any, Rq = any> {
+  /** HTTP method, default: GET */
   method?: Method;
-  data?: Re;
+
+  /** Params added to URL after "?" (@see: axios) */
+  params?: Pr;
+
+  /** Data uploaded as JSON to server (@see: axios). Ignored when method="GET" */
+  data?: Rq;
+
+  /** Used for cancellation. If canceler.current is not null then do cancel. (@see: axios and React.createRef) */
   canceler?: React.MutableRefObject<Canceler | null>;
+
+  /** Execute when HTTP 401 error was received: is no logged or token was void */
+  onNoLogged?: () => void;
 }
 
 const defaultApiOptions: ApiOptions = { method: "GET" };
 
+/**
+ * Throw when API occur an error.
+ */
 export class ApiError extends Error {
+  /** Form fields server-side validation errors. */
   fields: object;
+
+  /** Values injected to translated error message. Ignored when @field i18n is false. @see: react-intl and FormatMessage method */
   values?: Record<string, PrimitiveType>;
+
+  /** When true then Error.message contains ID of translated message, otherwise contains other message from server */
   i18n: boolean;
 
   constructor(message: string, fields: object, i18n: boolean = false, values?: Record<string, PrimitiveType>) {
@@ -27,13 +49,27 @@ export class ApiError extends Error {
     this.i18n = i18n;
   }
 
+  /**
+   * Return Exception.message translated by i18n() or not according to this.i18n value.
+   * @param i18n message translator
+   */
   getMessage = (i18n: I18n) => {
     return this.i18n ? i18n(this.message, this.values) : this.message;
   };
 }
 
-export async function api<Rq, Re>(endpoint: string, token: string | null, options?: ApiOptions<Re>): Promise<Re | undefined> {
-  const { method, data, canceler } = { ...defaultApiOptions, ...(options || {}) };
+/**
+ * Wrapper to axios. Support:
+ * 1. Run canceler is set.
+ * 2. Add authorization token header if set.
+ * 3. Return null when canceled instead throw exception.
+ * 4. Wrap server error (connection, token void, forbidden, not found, server-side form fields validation and other server error messages) to @see ApiError
+ * @param endpoint URL to connection
+ * @param token authorization token
+ * @param options others no required options @see ApiOptions
+ */
+export async function api<Pr, Rq, Re>(endpoint: string, token: string | null, options?: ApiOptions<Pr, Rq>): Promise<Re | undefined> {
+  const { method, params, data, canceler, onNoLogged } = { ...defaultApiOptions, ...(options || {}) };
   const isGet = method!.toLowerCase() === "get";
 
   canceler?.current?.();
@@ -43,7 +79,7 @@ export async function api<Rq, Re>(endpoint: string, token: string | null, option
     const result: AxiosResponse<Re> = await axios({
       method,
       url: endpoint,
-      params: isGet ? data : null,
+      params: params,
       data: isGet ? null : data,
       headers: token ? { Authorization: `Token ${token}` } : null,
       cancelToken:
@@ -55,11 +91,7 @@ export async function api<Rq, Re>(endpoint: string, token: string | null, option
 
     return result.data;
   } catch (error) {
-    if (axios.isCancel(error)) {
-      if (canceler) {
-        canceler.current = null;
-      }
-    } else {
+    if (!axios.isCancel(error)) {
       const { response } = error as AxiosError<ErrorResponse>;
       if (response) {
         if (response.data) {
@@ -69,9 +101,10 @@ export async function api<Rq, Re>(endpoint: string, token: string | null, option
             throw new ApiError(_("msg.conn.e.cli"), response.data, true, { fields: Object.keys(response.data).length });
           }
         } else {
-          let err = "";
+          let err;
           if (response.status === 401) {
             err = _("msg.conn.e.401");
+            onNoLogged?.();
           } else if (response.status === 403) {
             err = _("msg.conn.e.403");
           } else if (response.status === 404) {
@@ -84,6 +117,10 @@ export async function api<Rq, Re>(endpoint: string, token: string | null, option
       } else {
         throw new ApiError(_("msg.conn.e"), {}, true);
       }
+    }
+  } finally {
+    if (canceler) {
+      canceler.current = null;
     }
   }
 }
@@ -104,58 +141,25 @@ export function useFormikApi<Rq, Re>(
   const _ = useI18n();
   const { token } = useContext(AppContext);
 
-  async function onSubmit(values: Rq, formikHelpers: FormikHelpers<Rq>) {
-    if (canceler.current != null) {
-      canceler.current();
-    }
-
-    try {
-      const result: AxiosResponse<Re> = await axios({
-        method,
-        url: endpoint,
-        data: values,
-        headers: token ? { Authorization: `Token ${token}` } : null,
-        cancelToken: new axios.CancelToken(c => {
-          canceler.current = c;
-        })
-      });
-
-      setData(result.data);
-      formikHelpers.setSubmitting(false);
-
-      formikHelpers.setStatus({ status: "success", message: _("msg.conn.s") } as FormikStatus);
-      onSuccess?.(values, result.data);
-    } catch (error) {
-      if (!axios.isCancel(error)) {
-        formikHelpers.setSubmitting(false);
-
-        const { response } = error as AxiosError<ErrorResponse>;
-        if (response) {
-          if (response.data) {
-            if (response.data.non_field_errors) {
-              formikHelpers.setStatus({ status: "danger", message: response.data.non_field_errors.join("\n") } as FormikStatus);
-            } else {
-              formikHelpers.setStatus({
-                status: "danger",
-                message: _("msg.conn.e.srv")
-              });
-            }
-          } else {
-            formikHelpers.setStatus({
-              status: "danger",
-              message: _("msg.conn.e.srv")
-            });
-          }
-          onFail?.(values, response.data, formikHelpers);
-        } else {
-          formikHelpers.setStatus({ status: "danger", message: _("msg.conn.e") });
-          onFail?.(values, null, formikHelpers);
+  const onSubmit = useCallback(
+    async (values: Rq, formikHelpers: FormikHelpers<Rq>) => {
+      try {
+        const result = await api<any, Rq, Re>(endpoint, token, { method, canceler, data: values });
+        if (result != null) {
+          setData(result);
+          formikHelpers.setSubmitting(false);
+          formikHelpers.setStatus({ status: "success", message: _("msg.conn.s") } as FormikStatus);
+          onSuccess?.(values, result);
         }
+      } catch (ApiError) {
+        formikHelpers.setSubmitting(false);
+        formikHelpers.setStatus({ status: "danger", message: ApiError.getMessage(_) } as FormikStatus);
+        formikHelpers.setErrors(ApiError.fields);
+        onFail?.(values, ApiError, formikHelpers);
       }
-    }
-
-    canceler.current = null;
-  }
+    },
+    [_, method, onFail, onSuccess, token]
+  );
 
   useEffect(() => {
     return () => {
@@ -173,61 +177,29 @@ export function useApi<Rq, Re>(
   method: Method,
   endpoint: string,
   onSuccess: ((request: Rq, response: Re) => void) | null = null,
-  onFail: ((request: Rq, response: Re | ErrorResponse | null) => void) | null = null
-): { isLoading: boolean; data: Re | null; onQuery: (values: Rq) => void; errors: Re | ErrorResponse | null } {
+  onFail: ((request: Rq, response: Re | ApiError | null) => void) | null = null
+): { isLoading: boolean; data: Re | null; onQuery: (values: Rq) => void; errors: Re | ApiError | null } {
   const [isLoading, setLoading] = useState(false);
   const [data, setData] = useState<Re | null>(null);
-  const [errors, setErrors] = useState<Re | ErrorResponse | null>(null);
+  const [errors, setErrors] = useState<Re | ApiError | null>(null);
   const canceler = useRef<Canceler | null>(null);
   const _ = useI18n();
   const { token } = useContext(AppContext);
 
   const onQuery = useCallback(
     async (values: Rq) => {
-      if (canceler.current != null) {
-        canceler.current();
-      }
-      setLoading(true);
-
-      const isGet = method.toLowerCase() === "get";
-      const cancelToken = new axios.CancelToken(c => {
-        canceler.current = c;
-      });
-
       try {
-        const result: AxiosResponse<Re> = await axios({
-          method,
-          url: endpoint,
-          params: isGet ? values : null,
-          data: isGet ? null : values,
-          headers: token ? { Authorization: `Token ${token}` } : null,
-          cancelToken
-        });
-        setLoading(false);
-        setData(result.data);
-        onSuccess?.(values, result.data);
-      } catch (error) {
-        if (!axios.isCancel(error)) {
+        const result = await api<any, Rq, Re>(endpoint, token, { method, canceler, data: values });
+        if (result != null) {
+          setData(result);
           setLoading(false);
-
-          const { response } = error as AxiosError<ErrorResponse>;
-          if (response) {
-            if (response.data) {
-              setErrors(response.data);
-            } else {
-              setErrors({
-                non_field_errors: [_("msg.conn.e.srv")]
-              });
-            }
-            onFail?.(values, response.data);
-          } else {
-            setErrors({ non_field_errors: [_("msg.conn.e.srv")] });
-            onFail?.(values, null);
-          }
+          onSuccess?.(values, result);
         }
+      } catch (ApiError) {
+        setLoading(false);
+        setErrors(ApiError);
+        onFail?.(values, ApiError);
       }
-
-      canceler.current = null;
     },
     [method, endpoint, token, onSuccess, onFail, _]
   );
@@ -247,7 +219,7 @@ export function useApi<Rq, Re>(
 export function useGet<Rq, Re>(
   endpoint: string,
   values?: any
-): { isLoading: boolean; data: Re | null; errors: Re | ErrorResponse | null; onQuery: (values: Rq) => void } {
+): { isLoading: boolean; data: Re | null; errors: Re | ApiError | null; onQuery: (values: Rq) => void } {
   const { isLoading, data, errors, onQuery } = useApi<Rq, Re>("GET", endpoint);
   useEffect(() => {
     onQuery(values);

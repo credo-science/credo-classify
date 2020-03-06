@@ -50,7 +50,7 @@ class ClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, App
 
   loadRandomDetection = async () => {
     try {
-      const detection = await api<void, GetRandomDetectionResponse>("/api/classify/random/", this.context.token);
+      const detection = await api<void, void, GetRandomDetectionResponse>("/api/classify/random/", this.context.token);
       this.setState(() => ({ loading: false, detection: detection, error: null }));
     } catch (ApiError) {
       this.setState(() => ({ loading: false, error: ApiError.getMessage(this.props._) }));
