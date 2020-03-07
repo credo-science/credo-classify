@@ -51,7 +51,9 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, MainState> 
   }
 
   render() {
-    const { language, messages } = this.state;
+    const { language, messages, token } = this.state;
+
+    const classify = <Route path="/classify" component={ClassifyPage} />;
 
     return (
       <AppContext.Provider value={this.state}>
@@ -62,8 +64,8 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, MainState> 
               <Route path="/user" component={UserPage} />
               <Route path="/forgot" component={ForgotPage} />
               <Route path="/register" component={RegisterPage} />
-              <Route path="/classify" component={ClassifyPage} />
-              <Route path="/" exact component={HomePage} />
+              {token ? [classify] : null}
+              <Route path="/" component={HomePage} />
             </Switch>
           </Router>
         </IntlProvider>
