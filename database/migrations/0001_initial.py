@@ -66,7 +66,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('timestamp', models.BigIntegerField(db_index=True)),
                 ('time_received', models.BigIntegerField(blank=True)),
-                ('mime', models.CharField(default='image/png', max_length=32)),
+                ('mime', models.CharField(max_length=32, blank=True, null=True)),
                 ('source', models.CharField(blank=True, max_length=255)),
                 ('provider', models.CharField(blank=True, max_length=255)),
                 ('metadata', models.TextField(blank=True, null=True)),

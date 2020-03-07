@@ -12,7 +12,7 @@ def find_unclassified_by_user(user: User, count=1, qs: QuerySet = None) -> List[
     ret = []
     used = set()
 
-    qs = qs or Detection.objects.all()
+    qs = qs or Detection.objects.filter(mime__isnull=False)
     entities = qs.count()
 
     tries = 100  # TODO: need to optimize unclassified detections (maybe fast bitmap cache)

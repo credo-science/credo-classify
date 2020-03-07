@@ -62,6 +62,7 @@ class GenericImporter(APIView):
             if v is None:
                 inserted += 1
                 e = self.model_class(id=v_id, **v_fields)
+                self.post_import(e, unit)
                 bulk.append(e)
                 self.import_as_attributes(e, unit, check)
             else:
@@ -96,6 +97,9 @@ class GenericImporter(APIView):
         return False
 
     def bulk_attributes(self):
+        pass
+
+    def post_import(self, entity, source):
         pass
 
 
@@ -209,3 +213,7 @@ class ImportDetections(GenericImporter):
         if len(self.bulk):
             DetectionAttribute.objects.bulk_create(self.bulk)
             self.bulk = []
+
+    def post_import(self, entity: Detection, source):
+        if source.get('frame_content'):
+            entity.mime = 'image/png'

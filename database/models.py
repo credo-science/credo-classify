@@ -1,5 +1,7 @@
 import os
 import urllib.parse
+from typing import Optional
+
 from django.db import models
 
 from credo_classification.drf import DjangoPlusViewPermissionsMixin
@@ -69,7 +71,7 @@ class Detection(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     timestamp = models.BigIntegerField(db_index=True)
     time_received = models.BigIntegerField(blank=True)
-    mime = models.CharField(max_length=32, default='image/png')
+    mime = models.CharField(max_length=32, blank=True, null=True)
     source = models.CharField(max_length=255, blank=True)
     provider = models.CharField(max_length=255, blank=True)
     metadata = models.TextField(null=True, blank=True)
@@ -77,7 +79,7 @@ class Detection(models.Model):
     def __str__(self):
         return "Detection %s" % self.id
 
-    def get_file_name(self):
+    def get_file_name(self) -> Optional[str]:
         ext = 'dat'
         if self.mime == 'image/png':
             ext = 'png'

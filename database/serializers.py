@@ -88,14 +88,14 @@ class DetectionImporterSerializer(Serializer):
     metadata = CharField(label=_("Metadata"), allow_blank=True, allow_null=True)
 
     # stored in DetectionAttribute
-    accuracy = FloatField(label=_("Team ID"))
-    latitude = FloatField(label=_("Team ID"))
-    longitude = FloatField(label=_("Team ID"))
-    altitude = FloatField(label=_("Team ID"))
-    height = IntegerField(label=_("Team ID"))
-    width = IntegerField(label=_("Team ID"))
-    x = IntegerField(label=_("Team ID"), allow_null=True)
-    y = IntegerField(label=_("Team ID"), allow_null=True)
+    accuracy = FloatField(label=_("GPS accuracy"), allow_null=True)
+    latitude = FloatField(label=_("GPS latitude"), allow_null=True)
+    longitude = FloatField(label=_("GPS longitude"), allow_null=True)
+    altitude = FloatField(label=_("GPS altitude"), allow_null=True)
+    height = IntegerField(label=_("Frame height"), allow_null=True)
+    width = IntegerField(label=_("Frame width"), allow_null=True)
+    x = IntegerField(label=_("X"), allow_null=True)
+    y = IntegerField(label=_("Y"), allow_null=True)
 
     # stored in file system
     frame_content = CharField(label=_("Metadata"), allow_blank=True, allow_null=True)
