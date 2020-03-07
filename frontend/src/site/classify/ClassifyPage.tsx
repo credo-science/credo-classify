@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from "react";
 import { AppContext, AppContextType } from "../../context/AppContext";
 import { Button, Card, Container } from "react-bootstrap";
-import { api, ApiError, useApi, useGet } from "../../api/api";
+import { apiClient, ApiError, useApiClient, useGet } from "../../api/api";
 import { useI18n } from "../../utils";
 import { GetRandomDetectionResponse } from "../../api/rqre";
 import { withI18n, WithI18nProps } from "../../utils/i18n";
@@ -50,8 +50,8 @@ class ClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, App
 
   loadRandomDetection = async () => {
     try {
-      const detection = await api<void, void, GetRandomDetectionResponse>("/api/classify/random/", this.context.token);
-      this.setState(() => ({ loading: false, detection: detection, error: null }));
+      const detection = await apiClient<GetRandomDetectionResponse>("/api/classify/random/", this.context);
+      this.setState(() => ({ loading: false, detection: detection?.data, error: null }));
     } catch (ApiError) {
       this.setState(() => ({ loading: false, error: ApiError.getMessage(this.props._) }));
     }

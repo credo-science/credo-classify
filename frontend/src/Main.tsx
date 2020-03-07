@@ -44,6 +44,7 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, MainState> 
       ...defaultAppContext,
       toggleLanguage: this.toggleLanguage,
       toggleLoginState: this.toggleLoginState,
+      toggleLogout: () => this.toggleLoginState(null, null, false),
       updateUser: this.updateUser,
       messages: getI18nMessages(defaultAppContext.language)
     };

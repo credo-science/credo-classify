@@ -1,8 +1,11 @@
 import { AttributeEntity, DetectionEntity, DeviceEntity, UserEntity } from "./entities";
+import { FormikErrors } from "formik/dist/types";
 
-export interface ErrorResponse {
+interface NonFieldErrors {
   non_field_errors: string[];
 }
+
+export type ErrorResponse<Rq = any> = NonFieldErrors | FormikErrors<Rq>;
 
 export interface LoginRequest {
   username: string;

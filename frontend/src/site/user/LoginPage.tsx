@@ -3,11 +3,11 @@ import { Container, Card, Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import * as yup from "yup";
 import { Formik } from "formik";
-import { useFormikApi } from "../../api/api";
 import { AppContext } from "../../context/AppContext";
 import { LoginRequest, LoginResponse } from "../../api/rqre";
 import { FormStatusAlert, VCheck, VField, VSubmitButton } from "../../layout/forms";
 import { useI18n } from "../../utils";
+import { useFormikApi } from "../../api/formik";
 
 const containerStyle = { maxWidth: 540, marginTop: 60 };
 
@@ -27,7 +27,7 @@ const LoginPage: React.FC = () => {
       }),
     [req]
   );
-  const { onSubmit } = useFormikApi<LoginRequest, LoginResponse>("POST", "/api-token-auth/", (re, rq) => toggleLoginState(rq.token, rq.user, re.remember));
+  const [onSubmit] = useFormikApi<LoginResponse, LoginRequest>("/api-token-auth/", (re, rq) => toggleLoginState(re.token, re.user, !!rq?.remember));
 
   return (
     <Formik validationSchema={schema} onSubmit={onSubmit} initialValues={initialValues}>

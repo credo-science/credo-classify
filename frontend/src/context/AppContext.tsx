@@ -7,6 +7,7 @@ export interface AppContextType {
   user: UserEntity | null;
   toggleLanguage: (language: string) => void;
   toggleLoginState: (token: string | null, user: UserEntity | null, remember: boolean) => void;
+  toggleLogout: () => void;
   updateUser: (user: UserEntity) => void;
 }
 
@@ -18,7 +19,8 @@ function getDefaultContext(): AppContextType {
     user: user ? JSON.parse(user) : null,
     toggleLanguage: () => {},
     toggleLoginState: () => {},
-    updateUser: () => {}
+    updateUser: () => {},
+    toggleLogout: () => {}
   };
 }
 

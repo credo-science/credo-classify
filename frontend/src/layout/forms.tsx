@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
-import { FormikStatus } from "../api/api";
 import { Alert, Button, Form } from "react-bootstrap";
 import { useFormikContext } from "formik";
 import { uniqueId } from "lodash";
 import { useI18n } from "../utils";
+import { FormikStatus } from "../api/formik";
 
 export const FormStatusAlert: React.FC<{ status: FormikStatus; isSubmitting: boolean }> = ({ status, isSubmitting }) => {
   const _ = useI18n();

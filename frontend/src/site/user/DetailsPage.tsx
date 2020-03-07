@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from "react";
 import { AppContext } from "../../context/AppContext";
 import { Button, Card, Container } from "react-bootstrap";
-import { useApi } from "../../api/api";
+import { useApiClient } from "../../api/api";
 import { useI18n } from "../../utils";
 
 const containerStyle = { maxWidth: 540, marginTop: 60 };
@@ -12,7 +12,7 @@ const DetailsPage: React.FC = () => {
   const toggleLogout = useCallback(() => {
     toggleLoginState(null, null, false);
   }, [toggleLoginState]);
-  const { onQuery, isLoading } = useApi("POST", "/api/logout/", toggleLogout, toggleLogout);
+  const [onQuery, isLoading] = useApiClient("/api/logout/", toggleLogout);
   const doLogout = useCallback(() => {
     onQuery({});
   }, [onQuery]);
