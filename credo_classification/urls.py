@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls import url
 from django.contrib import admin
+from django.contrib.staticfiles.views import serve
 from django.urls import path, include
 from django.conf.urls.static import static
 from rest_framework import routers
@@ -39,5 +40,7 @@ urlpatterns = [
     url(r'^api/import/pings/', ImportPings.as_view()),
     url(r'^api/import/detections/', ImportDetections.as_view()),
     url(r'^api/classify/random/', random_to_classify),
-    url(r'^api/', include(router.urls))
+    url(r'^api/', include(router.urls)),
+    url(r'^(?:index.html)?$', serve, kwargs={'path': 'index.html'}),
+    url(r'^(?P<path>.*)$', serve)
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
