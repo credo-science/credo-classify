@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Nav, Navbar } from "react-bootstrap";
+import { Badge, Nav, Navbar } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import "flag-icon-css/css/flag-icon.css";
 
@@ -17,6 +17,11 @@ const Menu: React.FC = () => {
       <LinkContainer to="/">
         <Navbar.Brand>CREDO Classify</Navbar.Brand>
       </LinkContainer>
+      {user && (
+        <Badge pill variant="primary" className="d-lg-none">
+          {`${_("menu.scores")}: ${user.score}`}
+        </Badge>
+      )}
       <div className={`navbar-collapse bg-light offcanvas-collapse${expanded ? " open" : ""}`}>
         <Nav className="mr-auto">
           {user && (
@@ -29,7 +34,14 @@ const Menu: React.FC = () => {
         </Nav>
         <Nav>
           <LinkContainer to="/user">
-            <Nav.Link>{user ? user.username : _("menu.sign_in")}</Nav.Link>
+            <Nav.Link>
+              {user ? user.username : _("menu.sign_in")}{" "}
+              {user && (
+                <Badge pill variant="primary">
+                  {user.score}
+                </Badge>
+              )}
+            </Nav.Link>
           </LinkContainer>
           <div>
             <span className="flag-icon flag-icon-gb mr-1" title="English language" onClick={() => toggleLanguage("en")} />

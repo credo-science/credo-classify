@@ -14,6 +14,7 @@ export default {
   "home.website": "CREDO Website",
   "menu.classify": "Classify",
   "menu.sign_in": "Sign in",
+  "menu.scores": "Scores",
   "msg.conn.e": "No connection with server, are the internet connection working?",
   "msg.conn.e.401": "You must sign-in first",
   "msg.conn.e.403": "Forbidden",
