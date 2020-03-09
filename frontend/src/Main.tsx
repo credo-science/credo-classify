@@ -65,7 +65,7 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, MainState> 
               <Route path="/forgot" component={ForgotPage} />
               <Route path="/register" component={RegisterPage} />
               {token ? [classify] : null}
-              <Route path="/" component={HomePage} />
+              <Route path="/" component={token ? HomePage : UserPage} />
             </Switch>
           </Router>
         </IntlProvider>
