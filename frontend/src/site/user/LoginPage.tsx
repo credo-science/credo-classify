@@ -11,7 +11,7 @@ import { useFormikApi } from "../../api/formik";
 
 const containerStyle = { maxWidth: 540, marginTop: 60 };
 
-const initialValues: LoginRequest = { username: "", password: "", remember: false };
+const initialValues: LoginRequest = { username: "", password: "", remember: true };
 
 const LoginPage: React.FC = () => {
   const { toggleLoginState } = useContext(AppContext);
