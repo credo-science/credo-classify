@@ -1,6 +1,6 @@
 import base64
 import os
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from django.db.models import Model
 from rest_framework import permissions
@@ -39,7 +39,9 @@ class GenericImporter(APIView):
         Performance optimizations:
         - bulk insertion for new rows
         - if /?nocheck=1 then no checked existing row
+        - attrbulk for bulk insertion of attributes (can't use private field)
         """
+        attrbulk = []
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -64,7 +66,7 @@ class GenericImporter(APIView):
                 e = self.model_class(id=v_id, **v_fields)
                 self.post_import(e, unit)
                 bulk.append(e)
-                self.import_as_attributes(e, unit, check)
+                self.import_as_attributes(e, unit, check, attrbulk)
             else:
                 changed = False
                 for key, value in v_fields.items():
@@ -72,7 +74,7 @@ class GenericImporter(APIView):
                         changed = True
                         setattr(v, key, value)
 
-                attr_changed = self.import_as_attributes(v, unit, check)
+                attr_changed = self.import_as_attributes(v, unit, check, attrbulk)
 
                 if changed:
                     v.save()
@@ -84,7 +86,7 @@ class GenericImporter(APIView):
         if len(bulk):
             self.model_class.objects.bulk_create(bulk)
 
-        self.bulk_attributes()
+        self.bulk_attributes(attrbulk)
 
         return Response({
             'parsed': parsed,
@@ -93,10 +95,10 @@ class GenericImporter(APIView):
             'not_changed': not_changed
         })
 
-    def import_as_attributes(self, entity: Model, unit: dict, check: bool) -> bool:
+    def import_as_attributes(self, entity: Model, unit: dict, check: bool, attrbulk: List) -> bool:
         return False
 
-    def bulk_attributes(self):
+    def bulk_attributes(self, attrbulk: List):
         pass
 
     def post_import(self, entity, source):
@@ -138,7 +140,6 @@ class ImportDetections(GenericImporter):
     fields_to_import = ['timestamp', 'time_received', 'device_id', 'user_id', 'team_id', 'source', 'provider', 'metadata']
     attributes_fields = ['accuracy', 'latitude', 'longitude', 'altitude', 'height', 'width', 'x', 'y']
     attributes_buff = {}
-    bulk = []
     path_exist = set()
 
     def __init__(self, **kwargs: Any) -> None:
@@ -146,7 +147,7 @@ class ImportDetections(GenericImporter):
         for f in self.attributes_fields:
             self.attributes_buff[f] = Attribute.objects.filter(name=f).first()
 
-    def import_as_attributes(self, entity: Detection, unit: dict, check: bool) -> bool:
+    def import_as_attributes(self, entity: Detection, unit: dict, check: bool, attrbulk: List) -> bool:
         """
         Import rest attributes of Detection to DetectionAttribute model.
 
@@ -174,7 +175,7 @@ class ImportDetections(GenericImporter):
                 v = float(rv)
                 if da is None:
                     changed = True
-                    self.bulk.append(DetectionAttribute(**filters, value=v))
+                    attrbulk.append(DetectionAttribute(**filters, value=v))
                 else:
                     changed = da.value != v
                     if changed:
@@ -209,10 +210,9 @@ class ImportDetections(GenericImporter):
 
         return changed
 
-    def bulk_attributes(self):
-        if len(self.bulk):
-            DetectionAttribute.objects.bulk_create(self.bulk)
-            self.bulk = []
+    def bulk_attributes(self, attrbulk: List):
+        if len(attrbulk):
+            DetectionAttribute.objects.bulk_create(attrbulk)
 
     def post_import(self, entity: Detection, source):
         if source.get('frame_content'):
