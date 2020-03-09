@@ -90,9 +90,11 @@ class ClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, App
           <img src={detection!.image} className="img__hit" alt={_("classify.img.alt")} />
         </div>
         <Card.Subtitle className="mb-2 mt-2 text-muted text-center">{`ID: ${detection!.id}, ${_("classify.subtitle")}`}</Card.Subtitle>
-        <table>
-          <tbody>{attributes.map(o => this.renderScoreRow(o.name, o.title, classes[o.name]))}</tbody>
-        </table>
+        <div className="div__attributes">
+          <table className="table__attributes">
+            <tbody>{attributes.map(o => this.renderScoreRow(o.name, o.title, classes[o.name]))}</tbody>
+          </table>
+        </div>
         <div className="text-center mt-4 mb-4">
           <Button variant={fullFilled ? "success" : filled ? "warning" : "secondary"} disabled={loading} onClick={this.onSubmit}>
             {filled ? _("classify.submit") : _("classify.next")}
