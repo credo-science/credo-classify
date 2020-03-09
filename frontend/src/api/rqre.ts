@@ -22,12 +22,3 @@ export interface ForgotRequest {
   username: string;
   email: string;
 }
-
-interface RandomDetection extends Omit<DetectionEntity, "device"> {
-  device: DeviceEntity;
-  attributes: AttributeEntity[];
-}
-
-export interface GetRandomDetectionResponse {
-  detections: RandomDetection[];
-}

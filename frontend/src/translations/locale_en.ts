@@ -1,4 +1,13 @@
 export default {
+  "classify.img.alt": "Cosmic-ray hit",
+  "classify.msg.e": "Error loading of cosmic-ray hit, please reload",
+  "classify.subtitle": "Please classify",
+  "classify.submit": "Save and load next",
+  "classify.attr.spot": "Spot",
+  "classify.attr.track": "Track",
+  "classify.attr.worm": "Worm",
+  "classify.attr.artifact": "Artifact",
+  "classify.next": "Skip and load next",
   "home.description": "Help scientists organize a huge set of cosmic ray image data from CCD/CMOS cameras.",
   "home.lead": "Classify cosmic-ray hits images and earn points :)",
   "home.title": "Welcome!",

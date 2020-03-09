@@ -29,3 +29,67 @@
 body {
   padding-top: 56px;
 }
+
+@mixin btn__classify($color) {
+  color: $color;
+  border-color: $color;
+}
+
+@mixin btn__classify--checked($color) {
+  background-color: $color;
+  border-color: $color;
+}
+
+.btn__classify__1 {
+  @include btn__classify(#df0117);
+}
+
+.btn__classify__1--checked {
+  @include btn__classify--checked(#df0117);
+}
+
+.btn__classify__2 {
+  @include btn__classify(#fd8301);
+}
+
+.btn__classify__2--checked {
+  @include btn__classify--checked(#fd8301);
+}
+
+.btn__classify__3 {
+  @include btn__classify(#ffd900);
+}
+
+.btn__classify__3--checked {
+  @include btn__classify--checked(#ffd900);
+}
+
+.btn__classify__4 {
+  @include btn__classify(#88ce00);
+}
+
+.btn__classify__4--checked {
+  @include btn__classify--checked(#88ce00);
+}
+
+.btn__classify__5 {
+  @include btn__classify(#00a300);
+}
+
+.btn__classify__5--checked {
+  @include btn__classify--checked(#00a300);
+}
+
+.img__hit {
+  image-rendering: pixelated;
+  max-width: 180px;
+  max-height: 180px;
+  width: 100%;
+  margin: auto;
+}
+
+.div__img {
+  width: 100%;
+  height: 180px;
+  display: flex;
+}
