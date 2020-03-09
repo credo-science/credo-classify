@@ -12,7 +12,7 @@ const Menu: React.FC = () => {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <Navbar collapseOnSelect expand="lg" bg="light" onToggle={setExpanded} fixed="top">
+    <Navbar collapseOnSelect expand="sm" bg="light" onToggle={setExpanded} fixed="top">
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <LinkContainer to="/">
         <Navbar.Brand>CREDO Classify</Navbar.Brand>
