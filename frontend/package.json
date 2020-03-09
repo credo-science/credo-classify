@@ -42,7 +42,7 @@
   },
   "scripts": {
     "start": "HOST=0.0.0.0 react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build; mv build/*.png build/*.html build/*.js build/*.json build/*.txt build/*.ico build/static",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "i18n-extract": "node extract_i18n_messages.js",
