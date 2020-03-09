@@ -41,6 +41,5 @@ urlpatterns = [
     url(r'^api/import/detections/', ImportDetections.as_view()),
     url(r'^api/classify/random/', random_to_classify),
     url(r'^api/', include(router.urls)),
-    url(r'^(?:index.html)?$', serve, kwargs={'path': 'index.html'}),
-    url(r'^(?P<path>.*)$', serve)
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    url(r'^(?:index.html)?$', serve, kwargs={'path': 'index.html'})
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [url(r'^(?P<path>.*)$', serve)]
