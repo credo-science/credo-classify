@@ -61,9 +61,11 @@ export const VCheck: React.FC<VCheckProps> = ({ controlId, label, name }) => {
   const { getFieldProps } = useFormikContext();
   const cid = useHtmlId(controlId);
 
+  const props = getFieldProps(name);
+
   return (
     <Form.Group controlId={cid}>
-      <Form.Check type="checkbox" label={label} name={name} {...getFieldProps(name)} />
+      <Form.Check type="checkbox" label={label} name={name} checked={props.value} {...props} />
     </Form.Group>
   );
 };
