@@ -108,10 +108,10 @@ class ClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, App
     const { _ } = this.props;
 
     return (
-      <tr>
+      <tr key={name}>
         <th className="text-right">{_(title)}:</th>
         {SCORES.map(o => (
-          <td>
+          <td key={`${name}_${o}`}>
             <ClassifyButton attribute={name} value={value} myValue={o} onSetClass={this.onSetClass} />
           </td>
         ))}

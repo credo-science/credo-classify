@@ -53,7 +53,7 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, MainState> 
   render() {
     const { language, messages, token } = this.state;
 
-    const classify = <Route path="/classify" component={ClassifyPage} />;
+    const classify = <Route key="classify" path="/classify" component={ClassifyPage} />;
 
     return (
       <AppContext.Provider value={this.state}>
