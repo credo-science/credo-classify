@@ -31,20 +31,16 @@ def api_500_handler(exception, context):
         return response
     else:
         if isinstance(exception, ValidationError):
-            return Response({
-                'error': True,
-                'error_content': exception.get_full_details(),
-                'status_code': 400},
+            return Response(
+                {'non_field_error': exception.get_full_details()},
                 status=status.HTTP_400_BAD_REQUEST,
                 content_type="application/json"
             )
         else:
             print('500 Error: ' + str(exception))
             print("\n".join(traceback.format_exception(None, exception, exception.__traceback__)), file=sys.stderr, flush=True)
-            return Response({
-                    'error': True,
-                    'error_content': str(exception),
-                    'status_code': 500},
+            return Response(
+                {'non_field_error': str(exception)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content_type="application/json"
             )
