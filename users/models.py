@@ -25,10 +25,6 @@ class Token(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=_("User"))
     created = models.DateTimeField(_("Created"), auto_now_add=True)
 
-    class Meta:
-        verbose_name = _("Token")
-        verbose_name_plural = _("Tokens")
-
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = self.generate_key()
@@ -43,3 +39,7 @@ class Token(models.Model):
 
     def __str__(self):
         return self.key
+
+    class Meta:
+        verbose_name = _("Token")
+        verbose_name_plural = _("Tokens")

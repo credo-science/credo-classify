@@ -21,14 +21,17 @@ class AuthTokenSerializer(serializers.Serializer):
         password = attrs.get('password')
 
         if username and password:
-            user = authenticate(request=self.context.get('request'),
-                                username=username, password=password)
+            try:
+                user = authenticate(request=self.context.get('request'), username=username, password=password)
+            except Exception as e:
+                msg = _('Error connection with CREDO server')
+                raise serializers.ValidationError(msg, code='authorization')
 
             if not user:
-                msg = _('Invalid login or password.')
+                msg = _('Invalid login or password')
                 raise serializers.ValidationError(msg, code='authorization')
         else:
-            msg = _('Must include "username" and "password".')
+            msg = _('Must include "username" and "password"')
             raise serializers.ValidationError(msg, code='authorization')
 
         attrs['user'] = user

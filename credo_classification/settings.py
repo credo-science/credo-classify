@@ -120,6 +120,14 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'users.backends.CredoUserBackend',
+]
+
+CREDO_SERVER = 'https://api.credo.science/'
+APP_SITE = 'nkg.myftp.org'
+APP_NAME = 'CREDO Classify'
+APP_VERSION = '0.1-alpha'
 
 # Django REST Framework
 
