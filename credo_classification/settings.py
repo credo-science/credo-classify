@@ -68,7 +68,7 @@ ROOT_URLCONF = 'credo_classification.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,6 +128,7 @@ CREDO_SERVER = 'https://api.credo.science/'
 APP_SITE = 'nkg.myftp.org'
 APP_NAME = 'CREDO Classify'
 APP_VERSION = '0.1-alpha'
+BASE_URL = 'user-interface/classification/'
 
 # Django REST Framework
 
@@ -163,8 +164,8 @@ AUTH_USER_MODEL = 'users.User'
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = '/static/'
+STATIC_URL = '/%sstatic/' % BASE_URL
 STATICFILES_DIRS = [os.path.join(BASE_DIR, "frontend", "build", "static")]
 
-MEDIA_URL = '/files/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'files')
+MEDIA_URL = 'files/'
+MEDIA_ROOT = '/media/storage/nkg/credo/classification'

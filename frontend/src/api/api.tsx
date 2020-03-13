@@ -89,7 +89,7 @@ export async function apiRequest<Re = any, Rq = any, Pr = any>(endpoint: string,
   try {
     return await axios({
       method,
-      url: endpoint,
+      url: `${credoAppRoot}/${endpoint}`,
       params: params,
       data: isGet ? null : data,
       headers: token ? { Authorization: `Token ${token}` } : null,

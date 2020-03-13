@@ -13,7 +13,7 @@ const DetailsPage: React.FC = () => {
   const toggleLogout = useCallback(() => {
     toggleLoginState(null, null, false);
   }, [toggleLoginState]);
-  const [onQuery, isLoading] = useApiClient("/api/logout/", toggleLogout);
+  const [onQuery, isLoading] = useApiClient("api/logout/", toggleLogout);
   const doLogout = useCallback(() => {
     onQuery({});
   }, [onQuery]);

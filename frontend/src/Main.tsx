@@ -1,6 +1,6 @@
 import React, { PropsWithChildren } from "react";
 import Menu from "./layout/Menu";
-import { HashRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { IntlProvider } from "react-intl";
 
 import { AppContextType, AppContext, defaultAppContext } from "./context/AppContext";
@@ -58,7 +58,7 @@ export class Main extends React.PureComponent<PropsWithChildren<{}>, MainState> 
     return (
       <AppContext.Provider value={this.state}>
         <IntlProvider locale={language} messages={messages}>
-          <Router>
+          <Router basename={credoAppRoot}>
             <Menu />
             <Switch>
               <Route path="/user" component={UserPage} />

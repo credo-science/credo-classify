@@ -1,0 +1,1 @@
+declare var credoAppRoot: string;

@@ -41,8 +41,8 @@
     ]
   },
   "scripts": {
-    "start": "HOST=0.0.0.0 react-scripts start",
-    "build": "react-scripts build; mv build/*.png build/*.html build/*.js build/*.json build/*.txt build/*.ico build/static",
+    "start": "cross-env HOST=0.0.0.0 PUBLIC_URL=/user-interface/classification/ react-scripts start",
+    "build": "PUBLIC_URL=/user-interface/classification/ react-scripts build; mv build/*.png build/*.js build/*.json build/*.txt build/*.ico build/static; mv build/*.html ../templates; patch -p0 < sw.patch",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "i18n-extract": "node extract_i18n_messages.js",
@@ -80,6 +80,8 @@
   },
   "proxy": "http://localhost:8000",
   "devDependencies": {
-    "typescript-react-intl": "^0.4.1"
+    "cross-env": "^7.0.2",
+    "typescript-react-intl": "^0.4.1",
+    "workbox-build": "^5.0.0"
   }
 }

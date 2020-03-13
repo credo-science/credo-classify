@@ -109,8 +109,9 @@ class Detection(models.Model):
         return os.path.join(self.get_file_dir(), self.get_file_name())
 
     def get_file_url(self) -> str:
-        from credo_classification.settings import MEDIA_URL
-        url = urllib.parse.urljoin(MEDIA_URL, self.get_file_localdir()) + '/'
+        from credo_classification.settings import MEDIA_URL, BASE_URL
+        url = urllib.parse.urljoin('/' + BASE_URL, MEDIA_URL)
+        url = urllib.parse.urljoin(url, self.get_file_localdir()) + '/'
         return urllib.parse.urljoin(url, self.get_file_name())
 
     class Meta(DjangoPlusViewPermissionsMixin):

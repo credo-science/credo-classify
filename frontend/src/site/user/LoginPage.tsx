@@ -27,7 +27,7 @@ const LoginPage: React.FC = () => {
       }),
     [req]
   );
-  const [onSubmit] = useFormikApi<LoginResponse, LoginRequest>("/api-token-auth/", (re, rq) => toggleLoginState(re.token, re.user, !!rq?.remember));
+  const [onSubmit] = useFormikApi<LoginResponse, LoginRequest>("api-token-auth/", (re, rq) => toggleLoginState(re.token, re.user, !!rq?.remember));
 
   return (
     <Formik validationSchema={schema} onSubmit={onSubmit} initialValues={initialValues}>
