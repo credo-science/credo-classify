@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CREDO Classify</title>
+  {{ user|json_script:"user" }}
+</head>
+<body>
+<script>
+
+{% if token %}
+  localStorage.setItem("token", "{{ token }}");
+  localStorage.setItem("user", document.getElementById('user').textContent);
+{% endif %}
+
+  window.location = '/{{ base_url }}';
+
+</script>
+</body>
+</html>

@@ -5,3 +5,4 @@
 files/
 venv/
 static/
+templates/index.html

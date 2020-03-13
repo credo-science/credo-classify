@@ -1,10 +1,12 @@
+from django.conf import settings
+from django.shortcuts import render
 from rest_framework import permissions
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils.translation import gettext_lazy as _
 
-from users.models import Token
+from users.helpers import verify_user_by_credo_token
+from users.models import Token, User
 from users.serializers import AuthTokenSerializer, UserViewSerializer, ResetPasswordSerializer
 
 
@@ -22,6 +24,37 @@ class ObtainAuthToken(APIView):
 
 
 obtain_auth_token = ObtainAuthToken.as_view()
+
+
+def auth_by_detector(request):
+    credo_token = request.GET.get('token')
+    message = ''
+    token = ''
+    user_json = {}
+    try:
+        json = verify_user_by_credo_token(credo_token)
+        if json is None:
+            message = _('Invalid CREDO token')
+        else:
+            username = json.get('username')
+            user = User.objects.filter(username=username).first()
+            if user is None:
+                user = User.objects.create(
+                    username=username,
+                    email=json.get('email')
+                )
+            token = Token.objects.create(user=user).key
+            user_json = UserViewSerializer(user).data
+    except:
+        message = _('Connection error with CREDO database')
+
+    context = {
+        'token': token,
+        'message': message,
+        'user': user_json,
+        'base_url': settings.BASE_URL
+    }
+    return render(request, 'auth.html', context)
 
 
 class VoidToken(APIView):

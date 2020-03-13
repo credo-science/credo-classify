@@ -25,7 +25,7 @@ from classify.views import random_to_classify
 from credo_classification.views import home
 from database.views import ImportTeams, ImportCredoUsers, ImportDevices, ImportPings, ImportDetections
 from definitions.views import AttributeViewSet
-from users.views import obtain_auth_token, void_token, reset_password
+from users.views import obtain_auth_token, void_token, reset_password, auth_by_detector
 
 router = routers.DefaultRouter()
 router.register(r'attributes', AttributeViewSet)
@@ -34,6 +34,7 @@ urlpatterns = [
   path('admin/', admin.site.urls),
   url(r'^(?:index.html)?$', home, name='home'),
   url(r'^api-token-auth/', obtain_auth_token),
+  url(r'^auth/', auth_by_detector),
   url(r'^api/logout/', void_token),
   url(r'^api/forgot/', reset_password),
   url(r'^api/import/teams/', ImportTeams.as_view()),
