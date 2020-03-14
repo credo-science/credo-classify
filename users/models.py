@@ -16,6 +16,18 @@ class User(AbstractUser):
     """
     score = models.IntegerField(default=0)
 
+    @staticmethod
+    def get_or_create_from_credo(credo: dict) -> 'User':
+        username = credo.get('username')
+        user = User.objects.filter(username=username).first()
+        if user is None:
+            user = User.objects.create(
+                username=username,
+                email=credo.get('email'),
+                is_active=True
+            )
+        return user
+
     class Meta(DjangoPlusViewPermissionsMixin):
         pass
 

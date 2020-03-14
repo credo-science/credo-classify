@@ -36,13 +36,7 @@ def auth_by_detector(request):
         if json is None:
             message = _('Invalid CREDO token')
         else:
-            username = json.get('username')
-            user = User.objects.filter(username=username).first()
-            if user is None:
-                user = User.objects.create(
-                    username=username,
-                    email=json.get('email')
-                )
+            user = User.get_or_create_from_credo(json)
             token = Token.objects.create(user=user).key
             user_json = UserViewSerializer(user).data
     except:

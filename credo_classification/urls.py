@@ -18,12 +18,11 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.staticfiles.views import serve
 from django.urls import path, include
-from django.conf.urls.static import static
 from rest_framework import routers
 
 from classify.views import random_to_classify
 from credo_classification.views import home
-from database.views import ImportTeams, ImportCredoUsers, ImportDevices, ImportPings, ImportDetections
+from database.views import ImportTeams, ImportCredoUsers, ImportDevices, ImportPings, ImportDetections, serve_image
 from definitions.views import AttributeViewSet
 from users.views import obtain_auth_token, void_token, reset_password, auth_by_detector
 
@@ -44,7 +43,8 @@ urlpatterns = [
   url(r'^api/import/detections/', ImportDetections.as_view()),
   url(r'^api/classify/random/', random_to_classify),
   url(r'^api/', include(router.urls)),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [url(r'^(?P<path>.*)$', serve)]
+  url(r'^images/(?P<detection_id>\d+)\.[a-zA-Z0-9]+', serve_image),
+] + [url(r'^(?P<path>.*)$', serve)]
 
 urlpatterns = [
   url(r'^%s' % settings.BASE_URL, include(urlpatterns))

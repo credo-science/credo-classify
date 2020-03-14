@@ -1,7 +1,6 @@
-import random
 from typing import List
 
-from django.db.models import QuerySet
+from django.db.models import QuerySet, F
 
 from classify.models import Classified
 from database.models import Detection
@@ -10,20 +9,17 @@ from users.models import User
 
 def find_unclassified_by_user(user: User, count=1, qs: QuerySet = None) -> List[Detection]:
     ret = []
-    used = set()
+    ids = []
 
-    qs = qs or Detection.objects.filter(mime__isnull=False)
-    entities = qs.count()
+    qs = (qs or Detection.objects.all()).filter(mime__isnull=False).order_by('score', 'random')
 
-    tries = 100  # TODO: need to optimize unclassified detections (maybe fast bitmap cache)
-
-    while len(used) < count and tries > 0:
-        nr = random.randint(0, entities)
-        d = qs[nr]  # type: Detection  # TODO: it is slow method :(
+    for d in qs:
         if Classified.objects.filter(user=user, detection=d).count() == 0:
-            used.add(nr)
             ret.append(d)
-        else:
-            tries -= 1
+            ids.append(d.id)
+        if len(ret) >= count:
+            break
+
+    Detection.objects.filter(id__in=ids).update(score=F('score') + 1)
 
     return ret

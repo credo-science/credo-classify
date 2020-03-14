@@ -1,6 +1,6 @@
 diff -ruN build.old/static/service-worker.js build/static/service-worker.js
---- build.old/static/service-worker.js	2020-03-13 17:11:40.878000000 +0100
-+++ build/static/service-worker.js	2020-03-13 17:12:41.534725908 +0100
+--- build.old/static/service-worker.js	2020-03-14 18:33:58.231000000 +0100
++++ build/static/service-worker.js	2020-03-14 18:46:05.988012240 +0100
 @@ -34,6 +34,6 @@
  workbox.precaching.precacheAndRoute(self.__precacheManifest, {});
  
@@ -8,5 +8,5 @@ diff -ruN build.old/static/service-worker.js build/static/service-worker.js
 -  
 -  blacklist: [/^\/_/,/\/[^/?]+\.[^/]+$/],
 +
-+  blacklist: [/^\/_/,/\/[^/?]+\.[^/]+$/, /^\/user-interface\/classification\/admin\//, /^\/user-interface\/classification\/auth\//],
++  blacklist: [/^\/_/,/\/[^/?]+\.[^/]+$/, /^\/user-interface\/classification\/admin\//, /^\/user-interface\/classification\/auth\//, /^\/user-interface\/classification\/images\//],
  });

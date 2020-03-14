@@ -1,5 +1,5 @@
-import os
 import urllib.parse
+from random import randrange
 from typing import Optional
 
 from django.db import models
@@ -71,10 +71,18 @@ class Detection(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE)
     timestamp = models.BigIntegerField(db_index=True)
     time_received = models.BigIntegerField(blank=True)
-    mime = models.CharField(max_length=32, blank=True, null=True)
     source = models.CharField(max_length=255, blank=True)
     provider = models.CharField(max_length=255, blank=True)
     metadata = models.TextField(null=True, blank=True)
+
+    mime = models.CharField(max_length=32, blank=True, null=True)
+    frame_content = models.BinaryField(blank=True, null=True)
+    width = models.IntegerField(blank=True, null=True)
+    height = models.IntegerField(blank=True, null=True)
+
+    # helpers for randomize hits for classifiers
+    random = models.IntegerField(blank=True, null=True, db_index=True)
+    score = models.IntegerField(default=0, db_index=True)
 
     def __str__(self):
         return "Detection %s" % self.id
@@ -86,33 +94,16 @@ class Detection(models.Model):
 
         return '%09d.%s' % (self.id, ext)
 
-    def get_file_localdir(self):
-        top = '%04d' % int(self.id / 100000000)
-        middle = '%04d' % int(self.id / 10000)
-        return os.path.join(top, middle)
-
-    def get_file_dir(self) -> str:
-        """
-        Directory where file with frame_content was stored.
-        :return: absolute path for directory
-        """
-        from credo_classification.settings import MEDIA_ROOT
-        return os.path.join(MEDIA_ROOT, self.get_file_localdir())
-
-    def get_file_absolute(self) -> str:
-        """
-        File name where frame_content was stored.
-        :return: absolute path for file with decoded data
-        """
-        import os
-
-        return os.path.join(self.get_file_dir(), self.get_file_name())
-
     def get_file_url(self) -> str:
-        from credo_classification.settings import MEDIA_URL, BASE_URL
-        url = urllib.parse.urljoin('/' + BASE_URL, MEDIA_URL)
-        url = urllib.parse.urljoin(url, self.get_file_localdir()) + '/'
-        return urllib.parse.urljoin(url, self.get_file_name())
+        from credo_classification.settings import BASE_URL
+        url = urllib.parse.urljoin('/' + BASE_URL, 'images/')
+        url = urllib.parse.urljoin(url, self.get_file_name())
+        return url
+
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        if self.random is None:
+            self.random = randrange(-2147483648, 2147483647)
+        super().save(force_insert, force_update, using, update_fields)
 
     class Meta(DjangoPlusViewPermissionsMixin):
         pass

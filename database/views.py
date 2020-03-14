@@ -1,8 +1,12 @@
 import base64
-import os
+import io
+from random import randrange
 from typing import Any, Optional, List
+from PIL import Image
 
 from django.db.models import Model
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -182,32 +186,6 @@ class ImportDetections(GenericImporter):
                         da.value = v
                         da.save()
 
-            frame_content = unit.get('frame_content')
-            fn = entity.get_file_absolute()
-            if frame_content:
-                decoded = base64.decodebytes(str.encode(frame_content))
-                path = entity.get_file_dir()
-                if path not in self.path_exist and not os.path.exists(path):
-                    os.makedirs(path)
-                    self.path_exist.add(path)
-
-                write_file = False
-                if check and os.path.exists(fn):
-                    data = open(fn, "rb").read()
-                    if data != decoded:
-                        write_file = True
-                        open(fn, "wb").write(decoded)
-                else:
-                    write_file = True
-
-                if write_file:
-                    changed = True
-                    open(fn, "wb").write(decoded)
-            else:
-                if os.path.exists(fn):
-                    changed = True
-                    os.remove(fn)
-
         return changed
 
     def bulk_attributes(self, attrbulk: List):
@@ -215,5 +193,15 @@ class ImportDetections(GenericImporter):
             DetectionAttribute.objects.bulk_create(attrbulk)
 
     def post_import(self, entity: Detection, source):
-        if source.get('frame_content'):
+        frame_content = source.get('frame_content')
+        if frame_content:
             entity.mime = 'image/png'
+            entity.frame_content = base64.decodebytes(str.encode(frame_content))
+            image = Image.open(io.BytesIO(entity.frame_content))
+            entity.width, entity.height = image.size
+            entity.random = randrange(-2147483648, 2147483647)
+
+
+def serve_image(request, detection_id, *args, **kwargs):
+    detection = get_object_or_404(Detection, pk=detection_id)
+    return HttpResponse(detection.frame_content, content_type=detection.mime)
