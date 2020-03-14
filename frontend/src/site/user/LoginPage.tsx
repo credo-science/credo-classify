@@ -35,20 +35,18 @@ const LoginPage: React.FC = () => {
         <Container style={containerStyle}>
           <Card>
             <Card.Body>
-              <Link to="/register" className="float-right btn btn-outline-primary">
+              {/*<Link to="/register" className="float-right btn btn-outline-primary">
                 {_("user_login.register")}
-              </Link>
+              </Link>*/}
               <Card.Title className="mb-4 mt-1">{_("user_login.title")}</Card.Title>
               <FormStatusAlert status={status} isSubmitting={isSubmitting} />
               <Form noValidate onSubmit={handleSubmit}>
                 <VField label={_("user.login")} placeholder="login" type="text" name="username" />
 
                 <VField
-                  head={
-                    <Link to="/forgot" className="float-right">
+                  head={/*<Link to="/forgot" className="float-right">
                       {_("user_login.forgot")}
-                    </Link>
-                  }
+                    </Link>*/ null}
                   label={_("user.password")}
                   placeholder="******"
                   type="password"
