@@ -81,8 +81,8 @@ class Detection(models.Model):
     height = models.IntegerField(blank=True, null=True)
 
     # helpers for randomize hits for classifiers
-    random = models.IntegerField(blank=True, null=True, db_index=True)
-    score = models.IntegerField(default=0, db_index=True)
+    random = models.IntegerField(blank=True, null=True)
+    score = models.IntegerField(default=0)
 
     def __str__(self):
         return "Detection %s" % self.id
@@ -106,7 +106,9 @@ class Detection(models.Model):
         super().save(force_insert, force_update, using, update_fields)
 
     class Meta(DjangoPlusViewPermissionsMixin):
-        pass
+        index_together = [
+            ("score", "random"),
+        ]
 
 
 class Ping(models.Model):
