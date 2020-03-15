@@ -43,8 +43,7 @@ class User(AbstractUser):
     def fast_update_scores(self, s: float, v: float) -> None:
         self.score += s
         self.verified += v
-        User.objects.filter(username=self.username).update(score=F('score') + s)
-        User.objects.filter(username=self.username).update(score=F('verified') + v)
+        User.objects.filter(username=self.username).update(score=F('score') + s, verified=F('verified') + v)
 
     class Meta(DjangoPlusViewPermissionsMixin):
         pass

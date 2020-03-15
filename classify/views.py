@@ -77,7 +77,6 @@ class RandomToClassifyScaled(BaseRandomToClassify):
         detection = None
 
         for k, v in classes.items():
-            points += 1
             ret, created = DetectionAttribute.set_or_update_value(
                 detection_id=detection_id,
                 user=user,
@@ -85,6 +84,8 @@ class RandomToClassifyScaled(BaseRandomToClassify):
                 value=v
             )
             detection = ret.detection
+            if created:
+                points += 1
 
         if len(classes.keys()) and detection is not None:
             user.fast_update_scores(*DetectionScore.set_new_points(user, detection, 'cs', points))
