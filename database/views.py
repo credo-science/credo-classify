@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 from rest_framework.response import Response
+from rest_framework.status import HTTP_410_GONE
 from rest_framework.views import APIView
 
 from database.models import Team, CredoUser, Device, Ping, Detection
@@ -56,10 +57,24 @@ class GenericImporter(APIView):
 
         check = not self.nocheck_exists(request)
         bulk = []
+        first = True
 
         for unit in serializer.validated_data.get(self.unit_name, []):
             parsed += 1
             v_id = unit.get('id')
+
+            # quick test: when nocheck then check if first in DB and when it then raise error
+            if not check and first:
+                v = self.model_class.objects.filter(pk=v_id).first()
+                if v is not None:
+                    return Response({
+                        'parsed': 0,
+                        'inserted': 0,
+                        'updated': 0,
+                        'not_changed': 0
+                    }, status=HTTP_410_GONE)
+            first = False
+
             v_fields = {}
             for f in self.fields_to_import:
                 v_fields[f] = unit.get(f)
