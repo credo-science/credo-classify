@@ -1,0 +1,14 @@
+[Unit]
+Description=CREDO Classify
+After=network.target
+
+[Service]
+User={os_user}
+Group={os_user}
+WorkingDirectory={path_with_manage.py}
+Environment=CREDO_SECRET={customize_secret}
+ExecStart=/{path_to_venv}/bin/daphne -b localhost -p 8000 credo_classification.asgi:application<
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
