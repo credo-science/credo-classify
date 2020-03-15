@@ -77,6 +77,7 @@ class RandomToClassifyScaled(BaseRandomToClassify):
         detection = None
 
         for k, v in classes.items():
+            points += 1
             ret, created = DetectionAttribute.set_or_update_value(
                 detection_id=detection_id,
                 user=user,
