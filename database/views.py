@@ -195,11 +195,17 @@ class ImportDetections(GenericImporter):
     def post_import(self, entity: Detection, source):
         frame_content = source.get('frame_content')
         if frame_content:
-            entity.mime = 'image/png'
-            entity.frame_content = base64.decodebytes(str.encode(frame_content))
-            image = Image.open(io.BytesIO(entity.frame_content))
-            entity.width, entity.height = image.size
-            entity.random = randrange(-2147483648, 2147483647)
+            try:
+                entity.frame_content = base64.decodebytes(str.encode(frame_content))
+                image = Image.open(io.BytesIO(entity.frame_content))
+                entity.mime = 'image/png'
+                entity.width, entity.height = image.size
+                entity.random = randrange(-2147483648, 2147483647)
+            except:
+                entity.frame_content = None
+                entity.mime = None
+                entity.width = None
+                entity.height = None
 
 
 def serve_image(request, detection_id, *args, **kwargs):
