@@ -87,7 +87,7 @@ class ClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, App
     return (
       <>
         <div className="text-center div__img">
-          <img src={detection!.image} className="img__hit" alt={_("classify.img.alt")} />
+          <img src={`data:image/png;base64,${detection!.frame_content}`} className="img__hit" alt={_("classify.img.alt")} />
         </div>
         <Card.Subtitle className="mb-2 mt-2 text-muted text-center">{`ID: ${detection!.id}, ${_("classify.subtitle")}`}</Card.Subtitle>
         <div className="div__attributes">

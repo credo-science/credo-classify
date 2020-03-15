@@ -34,10 +34,14 @@ export interface DetectionEntity extends Entity {
   image: string;
   timestamp: number;
   time_received: number;
-  mime: string;
   source: string;
   provider: string;
   metadata: string;
   user: number;
   team: number;
+
+  mime: string;
+  width: number;
+  height: number;
+  frame_content: string;
 }
