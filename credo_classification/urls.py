@@ -20,7 +20,7 @@ from django.contrib.staticfiles.views import serve
 from django.urls import path, include
 from rest_framework import routers
 
-from classify.views import random_to_classify
+from classify.views import random_to_classify_scaled, random_to_classify_one, random_to_classify_select
 from credo_classification.views import home
 from database.views import ImportTeams, ImportCredoUsers, ImportDevices, ImportPings, ImportDetections, serve_image
 from definitions.views import AttributeViewSet
@@ -41,7 +41,9 @@ urlpatterns = [
   url(r'^api/import/devices/', ImportDevices.as_view()),
   url(r'^api/import/pings/', ImportPings.as_view()),
   url(r'^api/import/detections/', ImportDetections.as_view()),
-  url(r'^api/classify/random/', random_to_classify),
+  url(r'^api/classify/one/', random_to_classify_one),
+  url(r'^api/classify/scaled/', random_to_classify_scaled),
+  url(r'^api/classify/select/', random_to_classify_select),
   url(r'^api/', include(router.urls)),
   url(r'^images/(?P<detection_id>\d+)\.[a-zA-Z0-9]+', serve_image),
 ] + [url(r'^(?P<path>.*)$', serve)]

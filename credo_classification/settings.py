@@ -20,10 +20,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '57l0)_#sk&r)9264!aw^li#=#61mzwy+a8&_2s^z0sic=g85ct'
+SECRET_KEY = os.environ.get('CREDO_SECRET', 'xxx')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('CREDO_DEBUG', '0') == '1'
+
+SECURE_HSTS_SECONDS = 0 if DEBUG else 60*60*24
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_SSL_REDIRECT = not DEBUG
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_HSTS_PRELOAD = True
+SECURE_REFERRER_POLICY = 'origin'
 
 ALLOWED_HOSTS = ['*']
 
@@ -89,14 +97,12 @@ WSGI_APPLICATION = 'credo_classification.wsgi.application'
 
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'credo',
-        'USER': 'credo',
-        'PASSWORD': 'credo',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'ENGINE': os.environ.get('CREDO_DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.environ.get('CREDO_DB_NAME', 'credo'),
+        'USER': os.environ.get('CREDO_DB_USER', 'credo'),
+        'PASSWORD': os.environ.get('CREDO_DB_PASSWORD', 'credo'),
+        'HOST': os.environ.get('CREDO_DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('CREDO_DB_PORT', '5432'),
         'ATOMIC_REQUESTS': True,
     }
 }
@@ -124,11 +130,11 @@ AUTHENTICATION_BACKENDS = [
     'users.backends.CredoUserBackend',
 ]
 
-CREDO_SERVER = 'https://api.credo.science/'
-APP_SITE = 'nkg.myftp.org'
+CREDO_SERVER = os.environ.get('CREDO_SERVER', 'https://api.credo.science/')
+APP_SITE = os.environ.get('CREDO_DEPLOY_SITE', 'test')
 APP_NAME = 'CREDO Classify'
 APP_VERSION = '0.1-alpha'
-BASE_URL = 'user-interface/classification/'
+BASE_URL = os.environ.get('CREDO_ENDPOINT', 'user-interface/classification/')
 
 # Django REST Framework
 

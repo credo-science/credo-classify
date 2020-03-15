@@ -123,7 +123,7 @@ class ClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, App
     try {
       this.setState(() => ({ loading: true }));
       const options: ApiOptions<SubmitClassifyRequest> = submit ? { method: "POST", data: { id: this.state.detection!.id, classes: this.state.classes } } : {};
-      const detection = await apiClient<GetRandomDetectionResponse, SubmitClassifyRequest>("api/classify/random/", this.context, options);
+      const detection = await apiClient<GetRandomDetectionResponse, SubmitClassifyRequest>("api/classify/scaled/", this.context, options);
       this.setState(() => ({ loading: false, detection: detection!.data.detection, error: null, classes: {} }));
       this.context.updateUser(detection!.data.user);
     } catch (ApiError) {

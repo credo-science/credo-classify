@@ -15,6 +15,8 @@ class Attribute(models.Model):
     KIND_CHOICES = (
         ('b', _('Build-in')),
         ('c', _('Classification by user')),
+        ('cs', _('Scaled classification (1 to 5)')),
+        ('co', _('One class')),
         ('o', _('Others')),
     )
 
@@ -22,7 +24,7 @@ class Attribute(models.Model):
     description = models.TextField(default='', blank=True, verbose_name=_('Description'))
     author = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name=_('Author'))
     active = models.BooleanField(default=False, verbose_name=_('Active'))
-    kind = models.CharField(max_length=1, default='o', choices=KIND_CHOICES, verbose_name=_('Kind'))
+    kind = models.CharField(max_length=2, default='o', choices=KIND_CHOICES, verbose_name=_('Kind'))
 
     def __str__(self) -> str:
         return _('Attribute: %s') % self.name

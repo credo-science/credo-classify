@@ -3,6 +3,7 @@ import os
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Sum, F
 from django.utils.translation import gettext_lazy as _
 
 from credo_classification.drf import DjangoPlusViewPermissionsMixin
@@ -12,9 +13,11 @@ class User(AbstractUser):
     """
     Auth user with;
 
-    scores - points gained for classification of cosmic-ray hits
+    scores - points gained for classification of cosmic-ray hits (sum of all scores from Score table)
+    verified - sum of verified scores from Score table
     """
-    score = models.IntegerField(default=0)
+    score = models.FloatField(default=0)
+    verified = models.FloatField(default=0)
 
     @staticmethod
     def get_or_create_from_credo(credo: dict) -> 'User':
@@ -27,6 +30,21 @@ class User(AbstractUser):
                 is_active=True
             )
         return user
+
+    def update_scores(self) -> None:
+        """
+        Recalc scores from Score table and save.
+        """
+        from classify.models import DetectionScore
+        self.score = DetectionScore.objects.filter(user=self).aggregate(score=Sum('score')).get('score', 0)
+        self.verified = DetectionScore.objects.filter(user=self, verified=True).aggregate(verified=Sum('score')).get('verified', 0)
+        self.save()
+
+    def fast_update_scores(self, s: float, v: float) -> None:
+        self.score += s
+        self.verified += v
+        User.objects.filter(username=self.username).update(score=F('score') + s)
+        User.objects.filter(username=self.username).update(score=F('verified') + v)
 
     class Meta(DjangoPlusViewPermissionsMixin):
         pass

@@ -1,8 +1,10 @@
 *.pyc
 .mypy_cache
 .idea
-*.sqlite3
+*.sqlite3*
 files/
 venv/
 static/
 templates/index.html
+*.log
+samples/

@@ -36,10 +36,11 @@ class Command(BaseCommand):
         Attribute.objects.create(name='width', description='Width of image frame', author=u, kind='b', active=True)
         Attribute.objects.create(name='x', description='X on image of center of crop', author=u, kind='b', active=True)
         Attribute.objects.create(name='y', description='Y on image of center of crop', author=u, kind='b', active=True)
-        Attribute.objects.create(name='spot', description='Spot-like hit', kind='c', author=u, active=True)
-        Attribute.objects.create(name='worm', description='Worm-like hit', kind='c', author=u, active=True)
-        Attribute.objects.create(name='track', description='Track-like hit', kind='c', author=u, active=True)
-        Attribute.objects.create(name='artifact', description='Artifact (fake hit: hot pixel, damage of CMOS/CCD, deliberate fraud)', kind='c', author=u, active=True)
+        Attribute.objects.create(name='spot', description='Spot-like hit', kind='cs', author=u, active=True)
+        Attribute.objects.create(name='worm', description='Worm-like hit', kind='cs', author=u, active=True)
+        Attribute.objects.create(name='track', description='Track-like hit', kind='cs', author=u, active=True)
+        Attribute.objects.create(name='artifact', description='Artifact (fake hit: hot pixel, damage of CMOS/CCD, deliberate fraud)', kind='cs', author=u, active=True)
+        Attribute.objects.create(name='class', description='One arbitrary class: 1 - spot, 2 - worm, 3 - track, 4 - artifact, n - future defined', kind='co', author=u, active=True)
 
         if options['token']:
             Token.objects.create(key='0000000000000000000000000000000000000000', user=u)

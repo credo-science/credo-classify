@@ -67,15 +67,15 @@ class Detection(models.Model):
     Reset attributes are stored in DetectionAttribute.
     """
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    user = models.ForeignKey(CredoUser, on_delete=models.CASCADE)
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    user = models.ForeignKey(CredoUser, on_delete=models.CASCADE, db_index=True)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, db_index=True)
     timestamp = models.BigIntegerField(db_index=True)
     time_received = models.BigIntegerField(blank=True)
     source = models.CharField(max_length=255, blank=True)
     provider = models.CharField(max_length=255, blank=True)
     metadata = models.TextField(null=True, blank=True)
 
-    mime = models.CharField(max_length=32, blank=True, null=True)
+    mime = models.CharField(max_length=32, blank=True, null=True, db_index=True)
     frame_content = models.BinaryField(blank=True, null=True)
     width = models.IntegerField(blank=True, null=True)
     height = models.IntegerField(blank=True, null=True)
