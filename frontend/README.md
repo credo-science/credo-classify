@@ -34,6 +34,10 @@ $ npm run build
 
 The output files you found in `./build` directory.
 
+**Wraning** if you use custom `CREDO_ENDPOINT` environment variable you should change the `user-interface/classification/`
+phrase manually in `./package.json` and `./public/manifest.json` and **after build** in `./build/static/service-worker`.
+TODO: apply it by build script.
+
 ## Translate to another languages
 
 Files with translated messages are stored in `./src/translations` as `locale_XX.ts` pattern where `XX` is 2-letters or `xx-XX` pattern language code.
