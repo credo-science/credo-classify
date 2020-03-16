@@ -1,3 +1,4 @@
+import ScaledClassifyPage from "./ScaledClassifyPage";
 import ClassifyPage from "./ClassifyPage";
 
-export { ClassifyPage };
+export { ScaledClassifyPage, ClassifyPage };

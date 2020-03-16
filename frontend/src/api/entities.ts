@@ -11,6 +11,10 @@ export interface UserEntity extends Entity {
   is_staff: boolean;
   is_active: boolean;
   is_superuser: boolean;
+
+  user_id: number;
+  team_id: number;
+  team_name: string;
 }
 
 export interface AttributeEntity extends Entity {

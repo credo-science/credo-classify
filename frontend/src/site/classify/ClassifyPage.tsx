@@ -1,153 +1,102 @@
-import React, { useCallback } from "react";
-import { AppContext, AppContextType } from "../../context/AppContext";
-import { Alert, Button, Card, Container } from "react-bootstrap";
-import { apiClient, ApiOptions } from "../../api/api";
+import React from "react";
 import { withI18n, WithI18nProps } from "../../utils/i18n";
-import { AttributeEntity, DetectionEntity, DeviceEntity, UserEntity } from "../../api/entities";
+import { AppContext, AppContextType } from "../../context/AppContext";
+import { ButtonGroup, Card, Col, Container, Row } from "react-bootstrap";
+import { CheckButton } from "../../layout/controls";
+import { Link, Route, Switch } from "react-router-dom";
+import ScaledClassifyPage from "./ScaledClassifyPage";
 
-const HardcodedAttributes = [
-  { name: "spot", title: "classify.attr.spot" },
-  { name: "track", title: "classify.attr.track" },
-  { name: "worm", title: "classify.attr.worm" },
-  { name: "artifact", title: "classify.attr.artifact" }
-];
-const SCORES = [1, 2, 3, 4, 5];
-
-export type OnSetClass = (attribute: string, value: number | null) => void;
-export type Classes = { [attrib: string]: number | null };
-
-export interface Detection extends Omit<DetectionEntity, "device"> {
-  device: DeviceEntity;
-  attributes: AttributeEntity[];
+interface FormState {
+  checked: number;
+  user: string;
+  team: string;
+  own: boolean;
 }
 
-export interface GetRandomDetectionResponse {
-  user: UserEntity;
-  detection: Detection;
-}
-
-export interface SubmitClassifyRequest {
-  id: number;
-  classes: Classes;
-}
-
-interface ClassifyButtonProps {
-  attribute: string;
-  value: number | null;
-  myValue: number;
-  onSetClass: OnSetClass;
-}
-
-export const ClassifyButton: React.FC<ClassifyButtonProps> = ({ attribute, value, myValue, onSetClass }) => {
-  const handleStClass = useCallback(() => {
-    onSetClass(attribute, value === myValue ? null : myValue);
-  }, [attribute, myValue, onSetClass, value]);
-
-  return (
-    <button className={`btn btn__classify__${myValue}${myValue === value ? "--checked" : ""}`} onClick={handleStClass}>
-      {myValue}
-    </button>
-  );
-};
-
-interface ClassifyPageState {
+interface ClassifyPageState extends FormState {
   loading: boolean;
-  detection?: Detection;
   error: string | null;
-  classes: Classes;
+  data?: { user_id: number; team_id: number };
 }
 
 class ClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, AppContextType> {
   static contextType = AppContext;
 
-  state: ClassifyPageState = { loading: true, error: null, classes: {} };
+  state: ClassifyPageState = { checked: 3, user: "", team: "", own: true, loading: false, error: null };
   context!: AppContextType;
 
   render() {
+    return (
+      <Switch>
+        <Route path="/classify/one">TODO</Route>
+        <Route path="/classify/scaled">
+          <ScaledClassifyPage />
+        </Route>
+        <Route path="/classify/select">TODO</Route>
+        <Route path="/classify">{this.renderDashboard()}</Route>
+      </Switch>
+    );
+  }
+
+  renderDashboard() {
     const { _ } = this.props;
-    const { detection, loading, error } = this.state;
+    const { checked } = this.state;
 
     return (
       <Container className="mt-4">
-        {detection && this.renderDetection()}
-        {loading && <Alert variant="info">{_(detection ? "classify.msg.p" : "classify.msg.loading")}</Alert>}
-        {error && <Alert variant="danger">{_("classify.msg.e")}</Alert>}
+        <Card.Title className="text-center">{_("classify.scope")}</Card.Title>
+        <ButtonGroup toggle className="w-100">
+          <CheckButton classBem="classify_user" onSetValue={this.onSetValue} name="checked" value={checked} myValue={1}>
+            {_("classify.user")}
+          </CheckButton>
+          <CheckButton classBem="classify_team" onSetValue={this.onSetValue} name="checked" value={checked} myValue={2}>
+            {_("classify.team")}
+          </CheckButton>
+          <CheckButton classBem="classify_all" onSetValue={this.onSetValue} name="checked" value={checked} myValue={3}>
+            {_("classify.all")}
+          </CheckButton>
+        </ButtonGroup>
+
+        <div className={`div__classify_scope${checked === 3 ? "" : " div__classify_scope--expanded"}`}>
+          <Card.Body>
+            <Card.Subtitle className="text-center">
+              {checked === 1 && `${_("classify.user")}: ${this.context.user!.username}`}
+              {checked === 2 && `${_("classify.team")}: ${this.context.user!.team_name}`}
+            </Card.Subtitle>
+          </Card.Body>
+        </div>
+
+        <Card.Title className="text-center mt-4">{_("classify.go")}</Card.Title>
+        <Row>
+          <Col xs={6}>
+            <Link to="/classify/one" className="btn btn-lg btn-block btn-success">
+              {_("classify.one")}
+            </Link>
+          </Col>
+          <Col xs={6}>
+            <Link to="/classify/scaled" className="btn btn-lg btn-block btn-success">
+              {_("classify.scaled")}
+            </Link>
+          </Col>
+        </Row>
+        <Row className="mt-4">
+          <Col xs={12}>
+            <Link to="/classify/select" className="btn btn-lg btn-block btn-success">
+              {_("classify.select")}
+            </Link>
+          </Col>
+        </Row>
       </Container>
     );
   }
 
-  renderDetection() {
-    const { _ } = this.props;
-    const { detection, loading, classes } = this.state;
-
-    const attributes = HardcodedAttributes;
-    const filled = this.getFilledCount();
-    const fullFilled = filled === attributes.length;
-
-    return (
-      <>
-        <div className="text-center div__img">
-          <img src={`data:image/png;base64,${detection!.frame_content}`} className="img__hit" alt={_("classify.img.alt")} />
-        </div>
-        <Card.Subtitle className="mb-2 mt-2 text-muted text-center">{`ID: ${detection!.id}, ${_("classify.subtitle")}`}</Card.Subtitle>
-        <div className="div__attributes">
-          <table className="table__attributes">
-            <tbody>{attributes.map(o => this.renderScoreRow(o.name, o.title, classes[o.name]))}</tbody>
-          </table>
-        </div>
-        <div className="text-center mt-4 mb-4">
-          <Button variant={fullFilled ? "success" : filled ? "warning" : "secondary"} disabled={loading} onClick={this.onSubmit}>
-            {filled ? _("classify.submit") : _("classify.next")}
-          </Button>
-        </div>
-      </>
-    );
-  }
-
-  renderScoreRow(name: string, title: string, value: number | null) {
-    const { _ } = this.props;
-
-    return (
-      <tr key={name}>
-        <th className="text-right">{_(title)}:</th>
-        {SCORES.map(o => (
-          <td key={`${name}_${o}`}>
-            <ClassifyButton attribute={name} value={value} myValue={o} onSetClass={this.onSetClass} />
-          </td>
-        ))}
-      </tr>
-    );
-  }
-
-  loadRandomDetection = async (submit: boolean) => {
-    try {
-      this.setState(() => ({ loading: true }));
-      const options: ApiOptions<SubmitClassifyRequest> = submit ? { method: "POST", data: { id: this.state.detection!.id, classes: this.state.classes } } : {};
-      const detection = await apiClient<GetRandomDetectionResponse, SubmitClassifyRequest>("api/classify/scaled/", this.context, options);
-      this.setState(() => ({ loading: false, detection: detection!.data.detection, error: null, classes: {} }));
-      this.context.updateUser(detection!.data.user);
-    } catch (ApiError) {
-      this.setState(() => ({ loading: false, error: ApiError.getMessage(this.props._) }));
-    }
+  onSetValue = (name: keyof FormState, value: number | string | boolean | null) => {
+    const newState = { [name]: value } as Pick<FormState, keyof FormState>;
+    console.log(newState);
+    this.setState(() => newState);
   };
 
-  onSetClass: OnSetClass = (attribute, value) => {
-    this.setState(old => ({ classes: { ...old.classes, [attribute]: value } }));
-  };
-
-  onSubmit = () => {
-    const filled = this.getFilledCount();
-    this.loadRandomDetection(filled > 0).then();
-  };
-
-  componentDidMount(): void {
-    this.loadRandomDetection(false).then();
-  }
-
-  getFilledCount = () => {
-    const { classes } = this.state;
-    return Object.keys(classes).reduce((sum, key) => sum + (classes[key] ? 1 : 0), 0);
-  };
+  componentDidMount() {}
 }
 
 export default withI18n(ClassifyPage);

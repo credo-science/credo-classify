@@ -30,54 +30,107 @@ body {
   padding-top: 56px;
 }
 
-@mixin btn__classify($color) {
+@mixin btn__check($color) {
   color: $color;
   border-color: $color;
 }
 
-@mixin btn__classify--checked($color) {
+@mixin btn__check--checked($color) {
   background-color: $color;
   border-color: $color;
 }
 
+@mixin btn__check_block($color) {
+  @include btn__check($color);
+  display: block;
+  width: 100%;
+}
+
+@mixin btn__check_block--checked($color) {
+  @include btn__check--checked($color);
+  display: block;
+  width: 100%;
+}
+
+.btn__classify_user,
+.btn__classify_user:hover {
+  @include btn__check-block(#3598db);
+}
+
+.btn__classify_user--checked,
+.btn__classify_user--checked:hover {
+  @include btn__check-block--checked(#3598db);
+  color: white;
+}
+
+.btn__classify_team,
+.btn__classify_team:hover {
+  @include btn__check-block(#1bbc9b);
+}
+
+.btn__classify_team--checked,
+.btn__classify_team--checked:hover {
+  @include btn__check-block--checked(#1bbc9b);
+}
+
+.btn__classify_all,
+.btn__classify_all:hover {
+  @include btn__check-block(#e84c3d);
+}
+
+.btn__classify_all--checked,
+.btn__classify_all--checked:hover {
+  @include btn__check-block--checked(#e84c3d);
+  color: white;
+}
+
 .btn__classify__1 {
-  @include btn__classify(#df0117);
+  @include btn__check(#df0117);
 }
 
 .btn__classify__1--checked {
-  @include btn__classify--checked(#df0117);
+  @include btn__check--checked(#df0117);
 }
 
 .btn__classify__2 {
-  @include btn__classify(#fd8301);
+  @include btn__check(#fd8301);
 }
 
 .btn__classify__2--checked {
-  @include btn__classify--checked(#fd8301);
+  @include btn__check--checked(#fd8301);
 }
 
 .btn__classify__3 {
-  @include btn__classify(#ffd900);
+  @include btn__check(#ffd900);
 }
 
 .btn__classify__3--checked {
-  @include btn__classify--checked(#ffd900);
+  @include btn__check--checked(#ffd900);
 }
 
 .btn__classify__4 {
-  @include btn__classify(#88ce00);
+  @include btn__check(#88ce00);
 }
 
 .btn__classify__4--checked {
-  @include btn__classify--checked(#88ce00);
+  @include btn__check--checked(#88ce00);
 }
 
 .btn__classify__5 {
-  @include btn__classify(#00a300);
+  @include btn__check(#00a300);
 }
 
 .btn__classify__5--checked {
-  @include btn__classify--checked(#00a300);
+  @include btn__check--checked(#00a300);
+}
+
+.div__classify_scope {
+  transition: height 0.5s;
+  height: 0;
+}
+
+.div__classify_scope--expanded {
+  height: 53px;
 }
 
 .img__hit {
