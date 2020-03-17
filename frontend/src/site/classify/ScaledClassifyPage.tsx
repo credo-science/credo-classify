@@ -4,6 +4,7 @@ import { Alert, Button, Card, Container } from "react-bootstrap";
 import { apiClient, ApiOptions } from "../../api/api";
 import { withI18n, WithI18nProps } from "../../utils/i18n";
 import { AttributeEntity, DetectionEntity, DeviceEntity, UserEntity } from "../../api/entities";
+import { CommonClassifyProps, formatScopeInfo } from "./commons";
 
 const HardcodedAttributes = [
   { name: "spot", title: "classify.scaled.attr.spot" },
@@ -24,6 +25,11 @@ export interface Detection extends Omit<DetectionEntity, "device"> {
 export interface GetRandomDetectionResponse {
   user: UserEntity;
   detection: Detection;
+}
+
+export interface ClassifyParams {
+  user?: number;
+  team?: number;
 }
 
 export interface SubmitClassifyRequest {
@@ -57,7 +63,7 @@ interface ClassifyPageState {
   classes: Classes;
 }
 
-class ScaledClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, AppContextType> {
+class ScaledClassifyPage extends React.Component<WithI18nProps & CommonClassifyProps, ClassifyPageState, AppContextType> {
   static contextType = AppContext;
 
   state: ClassifyPageState = { loading: true, error: null, classes: {} };
@@ -86,6 +92,7 @@ class ScaledClassifyPage extends React.Component<WithI18nProps, ClassifyPageStat
 
     return (
       <>
+        <Card.Subtitle className="mb-2 mt-2 text-muted text-center">{formatScopeInfo(_, this.props)}</Card.Subtitle>
         <div className="text-center div__img">
           <img src={`data:image/png;base64,${detection!.frame_content}`} className="img__hit" alt={_("classify.common.img.alt")} />
         </div>
@@ -121,8 +128,12 @@ class ScaledClassifyPage extends React.Component<WithI18nProps, ClassifyPageStat
 
   loadRandomDetection = async (submit: boolean) => {
     try {
+      const params: ClassifyParams = { user: this.props.user_id, team: this.props.team_id };
+
       this.setState(() => ({ loading: true }));
-      const options: ApiOptions<SubmitClassifyRequest> = submit ? { method: "POST", data: { id: this.state.detection!.id, classes: this.state.classes } } : {};
+      const options: ApiOptions<SubmitClassifyRequest> = submit
+        ? { method: "POST", data: { id: this.state.detection!.id, classes: this.state.classes }, params }
+        : { params };
       const detection = await apiClient<GetRandomDetectionResponse, SubmitClassifyRequest>("api/classify/scaled/", this.context, options);
       this.setState(() => ({ loading: false, detection: detection!.data.detection, error: null, classes: {} }));
       this.context.updateUser(detection!.data.user);

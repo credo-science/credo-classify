@@ -59,6 +59,10 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 class UserViewSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField(source='credo_user.id', read_only=True)
+    team_id = serializers.IntegerField(source='team.id', read_only=True)
+    team_name = serializers.CharField(source='team.name', read_only=True)
+
     class Meta:
         model = User
         exclude = ['password']

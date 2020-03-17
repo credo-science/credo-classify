@@ -22,7 +22,7 @@ def find_unclassified_by_user(user: User, kind: str, count=1, own_qs: QuerySet =
 
     while len(ret) < count and tries > 0:
         ids = []
-        qs = uqs.filter(mime__isnull=False).order_by('score', 'random')[:count]
+        qs = uqs.filter(has_image=True).order_by('score', 'random')[:count]
 
         for d in qs:
             if not DetectionScore.has(user, d, kind):

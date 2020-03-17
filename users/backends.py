@@ -10,11 +10,5 @@ class CredoUserBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs) -> Optional[User]:
         ret = verify_credo_user(username, password)
         if ret:
-            user = User.objects.filter(username=username).first()
-            if user is None:
-                user = User.objects.create(
-                    username=username,
-                    email=ret.get('email')
-                )
-            return user
+            return User.get_or_create_from_credo(ret, ret.get('token'))
         return None

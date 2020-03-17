@@ -28,7 +28,7 @@ class BaseRandomToClassify(APIView):
         user = self.request.user
         count = int(self.request.query_params.get('count', '1'))
         ucs = find_unclassified_by_user(user, self.kind, min(count, 100), self.get_filtered_hits())
-        if len(ucs) == 1:
+        if len(ucs) > 0:
             return Response({
                 'user': UserViewSerializer(user).data,
                 'detection': DetectionClassifySerializer(ucs[0]).data

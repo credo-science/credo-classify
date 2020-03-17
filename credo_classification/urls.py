@@ -22,7 +22,7 @@ from rest_framework import routers
 
 from classify.views import random_to_classify_scaled, random_to_classify_one, random_to_classify_select
 from credo_classification.views import home
-from database.views import ImportTeams, ImportCredoUsers, ImportDevices, ImportPings, ImportDetections, serve_image
+from database.views import ImportTeams, ImportCredoUsers, ImportDevices, ImportPings, ImportDetections, serve_image, CheckUserTeamIdView
 from definitions.views import AttributeViewSet
 from users.views import obtain_auth_token, void_token, reset_password, auth_by_detector
 
@@ -41,6 +41,7 @@ urlpatterns = [
   url(r'^api/import/devices/', ImportDevices.as_view()),
   url(r'^api/import/pings/', ImportPings.as_view()),
   url(r'^api/import/detections/', ImportDetections.as_view()),
+  url(r'^api/database/check/', CheckUserTeamIdView.as_view()),
   url(r'^api/classify/one/', random_to_classify_one),
   url(r'^api/classify/scaled/', random_to_classify_scaled),
   url(r'^api/classify/select/', random_to_classify_select),

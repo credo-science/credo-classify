@@ -75,7 +75,8 @@ class Detection(models.Model):
     provider = models.CharField(max_length=255, blank=True)
     metadata = models.TextField(null=True, blank=True)
 
-    mime = models.CharField(max_length=32, blank=True, null=True, db_index=True)
+    has_image = models.BooleanField(db_index=True)
+    mime = models.CharField(max_length=32, blank=True, null=True)
     frame_content = models.BinaryField(blank=True, null=True)
     width = models.IntegerField(blank=True, null=True)
     height = models.IntegerField(blank=True, null=True)
@@ -107,7 +108,9 @@ class Detection(models.Model):
 
     class Meta(DjangoPlusViewPermissionsMixin):
         index_together = [
-            ("score", "random"),
+            ("has_image", "score", "random"),
+            ("user", "has_image", "score", "random"),
+            ("team", "has_image", "score", "random"),
         ]
 
 

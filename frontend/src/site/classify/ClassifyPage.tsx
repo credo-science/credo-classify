@@ -5,6 +5,7 @@ import { ButtonGroup, Card, Col, Container, Row } from "react-bootstrap";
 import { CheckButton } from "../../layout/controls";
 import { Link, Route, Switch } from "react-router-dom";
 import ScaledClassifyPage from "./ScaledClassifyPage";
+import { CommonClassifyProps } from "./commons";
 
 interface FormState {
   checked: number;
@@ -26,11 +27,21 @@ class ClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, App
   context!: AppContextType;
 
   render() {
+    const { checked } = this.state;
+    const classifyProps: CommonClassifyProps = {};
+    if (checked === 1) {
+      classifyProps.user_id = this.context.user!.user_id;
+      classifyProps.user_name = this.context.user!.username;
+    } else if (checked === 2) {
+      classifyProps.team_id = this.context.user!.team_id;
+      classifyProps.team_name = this.context.user!.team_name;
+    }
+
     return (
       <Switch>
         <Route path="/classify/one">TODO</Route>
         <Route path="/classify/scaled">
-          <ScaledClassifyPage />
+          <ScaledClassifyPage {...classifyProps} />
         </Route>
         <Route path="/classify/select">TODO</Route>
         <Route path="/classify">{this.renderDashboard()}</Route>
@@ -69,7 +80,7 @@ class ClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, App
         <Card.Title className="text-center mt-4">{_("classify.go")}</Card.Title>
         <Row>
           <Col xs={6}>
-            <Link to="/classify/one" className="btn btn-lg btn-block btn-success">
+            <Link to="/classify/one" className="btn btn-lg btn-block btn-secondary">
               {_("classify.one")}
             </Link>
           </Col>
@@ -81,7 +92,7 @@ class ClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, App
         </Row>
         <Row className="mt-4">
           <Col xs={12}>
-            <Link to="/classify/select" className="btn btn-lg btn-block btn-success">
+            <Link to="/classify/select" className="btn btn-lg btn-block btn-secondary">
               {_("classify.select")}
             </Link>
           </Col>

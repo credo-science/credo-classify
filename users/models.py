@@ -16,19 +16,34 @@ class User(AbstractUser):
     scores - points gained for classification of cosmic-ray hits (sum of all scores from Score table)
     verified - sum of verified scores from Score table
     """
+    team = models.ForeignKey('database.Team', null=True, blank=True, on_delete=models.SET_NULL)
+    credo_user = models.ForeignKey('database.CredoUser', null=True, blank=True, on_delete=models.SET_NULL)
+    credo_token = models.CharField(max_length=255, null=True, blank=True)
     score = models.FloatField(default=0)
     verified = models.FloatField(default=0)
 
     @staticmethod
-    def get_or_create_from_credo(credo: dict) -> 'User':
+    def get_or_create_from_credo(credo: dict, credo_token: str) -> 'User':
         username = credo.get('username')
         user = User.objects.filter(username=username).first()
+
+        from database.models import Team, CredoUser
+        team = Team.objects.filter(name=credo.get('team')).first()
+        credo_user = CredoUser.objects.filter(username=username).first()
+
         if user is None:
             user = User.objects.create(
                 username=username,
                 email=credo.get('email'),
-                is_active=True
+                is_active=True,
+                team=team,
+                credo_user=credo_user,
+                credo_token=credo_token
             )
+        else:
+            user.team = team
+            user.credo_user = credo_user
+            user.save(update_fields=['team', 'credo_user'])
         return user
 
     def update_scores(self) -> None:

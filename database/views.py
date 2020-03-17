@@ -210,6 +210,7 @@ class ImportDetections(GenericImporter):
     def post_import(self, entity: Detection, source):
         frame_content = source.get('frame_content')
         if frame_content:
+            entity.has_image = True
             try:
                 entity.frame_content = base64.decodebytes(str.encode(frame_content))
                 image = Image.open(io.BytesIO(entity.frame_content))
@@ -221,8 +222,27 @@ class ImportDetections(GenericImporter):
                 entity.mime = None
                 entity.width = None
                 entity.height = None
+        else:
+            entity.has_image = False
 
 
 def serve_image(request, detection_id, *args, **kwargs):
     detection = get_object_or_404(Detection, pk=detection_id)
     return HttpResponse(detection.frame_content, content_type=detection.mime)
+
+
+class CheckUserTeamIdView(APIView):
+    def post(self, request, *args, **kwargs):
+        user = request.data.get('user')
+        team = request.data.get('team')
+        ret = {}
+        if user:
+            u = CredoUser.objects.filter(username=user).first()
+            if u:
+                ret['user_id'] = u.id
+        if team:
+            t = Team.objects.filter(name=team).first()
+            if t:
+                ret['team_id'] = t.id
+
+        return Response(ret)
