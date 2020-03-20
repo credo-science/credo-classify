@@ -1,5 +1,7 @@
 import { I18n } from "../../utils/i18n";
 
+export type Classes = { [attrib: string]: number | null };
+
 export interface CommonClassifyProps {
   user_id?: number;
   user_name?: string;

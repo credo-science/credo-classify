@@ -4,18 +4,19 @@ import { Alert, Button, Card, Container } from "react-bootstrap";
 import { apiClient, ApiOptions } from "../../api/api";
 import { withI18n, WithI18nProps } from "../../utils/i18n";
 import { AttributeEntity, DetectionEntity, DeviceEntity, UserEntity } from "../../api/entities";
-import { CommonClassifyProps, formatScopeInfo } from "./commons";
+import { Classes, CommonClassifyProps, formatScopeInfo } from "./commons";
 
 const HardcodedAttributes = [
-  { name: "spot", title: "classify.scaled.attr.spot" },
-  { name: "track", title: "classify.scaled.attr.track" },
-  { name: "worm", title: "classify.scaled.attr.worm" },
-  { name: "artifact", title: "classify.scaled.attr.artifact" }
+  { name: "spot", title: "classify.attr.spot" },
+  { name: "track", title: "classify.attr.track" },
+  { name: "worm", title: "classify.attr.worm" },
+  { name: "multi", title: "classify.attr.multi" },
+  { name: "artifact", title: "classify.attr.artifact" },
+  { name: "amazing", title: "classify.attr.amazing" }
 ];
 const SCORES = [1, 2, 3, 4, 5];
 
 export type OnSetClass = (attribute: string, value: number | null) => void;
-export type Classes = { [attrib: string]: number | null };
 
 export interface Detection extends Omit<DetectionEntity, "device"> {
   device: DeviceEntity;
@@ -147,8 +148,10 @@ class ScaledClassifyPage extends React.Component<WithI18nProps & CommonClassifyP
   };
 
   onSubmit = () => {
-    const filled = this.getFilledCount();
-    this.loadRandomDetection(filled > 0).then();
+    if (!this.state.loading) {
+      const filled = this.getFilledCount();
+      this.loadRandomDetection(filled > 0).then();
+    }
   };
 
   componentDidMount(): void {

@@ -1,20 +1,12 @@
 import React, { useCallback } from "react";
 import { AppContext, AppContextType } from "../../context/AppContext";
-import { Alert, Button, Card, Container } from "react-bootstrap";
+import { Alert, Button, Card, Col, Container, Row } from "react-bootstrap";
 import { apiClient, ApiOptions } from "../../api/api";
 import { withI18n, WithI18nProps } from "../../utils/i18n";
 import { AttributeEntity, DetectionEntity, DeviceEntity, UserEntity } from "../../api/entities";
+import { CommonClassifyProps, formatScopeInfo } from "./commons";
 
-const HardcodedAttributes = [
-  { name: "spot", title: "classify.attr.spot" },
-  { name: "track", title: "classify.attr.track" },
-  { name: "worm", title: "classify.attr.worm" },
-  { name: "artifact", title: "classify.attr.artifact" }
-];
-const SCORES = [1, 2, 3, 4, 5];
-
-export type OnSetClass = (attribute: string, value: number | null) => void;
-export type Classes = { [attrib: string]: number | null };
+type OnSetClass = (value: number) => void;
 
 export interface Detection extends Omit<DetectionEntity, "device"> {
   device: DeviceEntity;
@@ -26,26 +18,32 @@ export interface GetRandomDetectionResponse {
   detection: Detection;
 }
 
+export interface ClassifyParams {
+  user?: number;
+  team?: number;
+}
+
 export interface SubmitClassifyRequest {
   id: number;
-  classes: Classes;
+  attribute: string;
+  value: number;
 }
 
 interface ClassifyButtonProps {
-  attribute: string;
-  value: number | null;
   myValue: number;
   onSetClass: OnSetClass;
+  children: React.ReactNode;
+  loading: boolean;
 }
 
-export const ClassifyButton: React.FC<ClassifyButtonProps> = ({ attribute, value, myValue, onSetClass }) => {
+export const ClassifyOneButton: React.FC<ClassifyButtonProps> = ({ myValue, onSetClass, children, loading }) => {
   const handleStClass = useCallback(() => {
-    onSetClass(attribute, value === myValue ? null : myValue);
-  }, [attribute, myValue, onSetClass, value]);
+    onSetClass(myValue);
+  }, [onSetClass, myValue]);
 
   return (
-    <button className={`btn btn__classify__${myValue}${myValue === value ? "--checked" : ""}`} onClick={handleStClass}>
-      {myValue}
+    <button className={`btn btn-success btn__classify__one__${myValue} : ""}`} disabled={loading} onClick={handleStClass}>
+      {children}
     </button>
   );
 };
@@ -54,13 +52,12 @@ interface ClassifyPageState {
   loading: boolean;
   detection?: Detection;
   error: string | null;
-  classes: Classes;
 }
 
-class OneClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, AppContextType> {
+class OneClassifyPage extends React.Component<WithI18nProps & CommonClassifyProps, ClassifyPageState, AppContextType> {
   static contextType = AppContext;
 
-  state: ClassifyPageState = { loading: true, error: null, classes: {} };
+  state: ClassifyPageState = { loading: true, error: null };
   context!: AppContextType;
 
   render() {
@@ -70,60 +67,81 @@ class OneClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, 
     return (
       <Container className="mt-4">
         {detection && this.renderDetection()}
-        {loading && <Alert variant="info">{_(detection ? "classify.msg.p" : "classify.msg.loading")}</Alert>}
-        {error && <Alert variant="danger">{_("classify.msg.e")}</Alert>}
+        {loading && <Alert variant="info">{_(detection ? "classify.common.msg.p" : "classify.common.msg.loading")}</Alert>}
+        {error && <Alert variant="danger">{_("classify.common.msg.e")}</Alert>}
       </Container>
     );
   }
 
   renderDetection() {
     const { _ } = this.props;
-    const { detection, loading, classes } = this.state;
-
-    const attributes = HardcodedAttributes;
-    const filled = this.getFilledCount();
-    const fullFilled = filled === attributes.length;
+    const { detection, loading } = this.state;
 
     return (
       <>
+        <Card.Subtitle className="mb-2 mt-2 text-muted text-center">{formatScopeInfo(_, this.props)}</Card.Subtitle>
         <div className="text-center div__img">
-          <img src={`data:image/png;base64,${detection!.frame_content}`} className="img__hit" alt={_("classify.img.alt")} />
+          <img src={`data:image/png;base64,${detection!.frame_content}`} className="img__hit" alt={_("classify.common.img.alt")} />
         </div>
-        <Card.Subtitle className="mb-2 mt-2 text-muted text-center">{`ID: ${detection!.id}, ${_("classify.subtitle")}`}</Card.Subtitle>
-        <div className="div__attributes">
-          <table className="table__attributes">
-            <tbody>{attributes.map(o => this.renderScoreRow(o.name, o.title, classes[o.name]))}</tbody>
-          </table>
-        </div>
+        <Card.Subtitle className="mb-2 mt-2 text-muted text-center">{`ID: ${detection!.id}, ${_("classify.common.subtitle")}`}</Card.Subtitle>
+
+        <Row>
+          <Col xs={6} className="text-center">
+            <ClassifyOneButton onSetClass={this.onSetClass} myValue={1} loading={loading}>
+              {_("classify.attr.spot")}
+            </ClassifyOneButton>
+          </Col>
+          <Col xs={6} className="text-center">
+            <ClassifyOneButton onSetClass={this.onSetClass} myValue={3} loading={loading}>
+              {_("classify.attr.track")}
+            </ClassifyOneButton>
+          </Col>
+        </Row>
+
+        <Row className="mt-4">
+          <Col xs={6} className="text-center">
+            <ClassifyOneButton onSetClass={this.onSetClass} myValue={2} loading={loading}>
+              {_("classify.attr.worm")}
+            </ClassifyOneButton>
+          </Col>
+          <Col xs={6} className="text-center">
+            <ClassifyOneButton onSetClass={this.onSetClass} myValue={6} loading={loading}>
+              {_("classify.attr.amazing")}
+            </ClassifyOneButton>
+          </Col>
+        </Row>
+
+        <Row className="mt-4">
+          <Col xs={6} className="text-center">
+            <ClassifyOneButton onSetClass={this.onSetClass} myValue={5} loading={loading}>
+              {_("classify.attr.multi")}
+            </ClassifyOneButton>
+          </Col>
+          <Col xs={6} className="text-center">
+            <ClassifyOneButton onSetClass={this.onSetClass} myValue={4} loading={loading}>
+              {_("classify.attr.artifact")}
+            </ClassifyOneButton>
+          </Col>
+        </Row>
+
         <div className="text-center mt-4 mb-4">
-          <Button variant={fullFilled ? "success" : filled ? "warning" : "secondary"} disabled={loading} onClick={this.onSubmit}>
-            {filled ? _("classify.submit") : _("classify.next")}
+          <Button variant="secondary" disabled={loading} onClick={this.onSubmit}>
+            {_("classify.common.next")}
           </Button>
         </div>
       </>
     );
   }
 
-  renderScoreRow(name: string, title: string, value: number | null) {
-    const { _ } = this.props;
-
-    return (
-      <tr key={name}>
-        <th className="text-right">{_(title)}:</th>
-        {SCORES.map(o => (
-          <td key={`${name}_${o}`}>
-            <ClassifyButton attribute={name} value={value} myValue={o} onSetClass={this.onSetClass} />
-          </td>
-        ))}
-      </tr>
-    );
-  }
-
-  loadRandomDetection = async (submit: boolean) => {
+  loadRandomDetection = async (value: number | null) => {
     try {
+      const params: ClassifyParams = { user: this.props.user_id, team: this.props.team_id };
+
       this.setState(() => ({ loading: true }));
-      const options: ApiOptions<SubmitClassifyRequest> = submit ? { method: "POST", data: { id: this.state.detection!.id, classes: this.state.classes } } : {};
-      const detection = await apiClient<GetRandomDetectionResponse, SubmitClassifyRequest>("api/classify/scaled/", this.context, options);
+      const options: ApiOptions<SubmitClassifyRequest> = value
+        ? { method: "POST", data: { id: this.state.detection!.id, attribute: "class", value }, params }
+        : { params };
+      const detection = await apiClient<GetRandomDetectionResponse, SubmitClassifyRequest>("api/classify/one/", this.context, options);
       this.setState(() => ({ loading: false, detection: detection!.data.detection, error: null, classes: {} }));
       this.context.updateUser(detection!.data.user);
     } catch (ApiError) {
@@ -131,23 +149,21 @@ class OneClassifyPage extends React.Component<WithI18nProps, ClassifyPageState, 
     }
   };
 
-  onSetClass: OnSetClass = (attribute, value) => {
-    this.setState(old => ({ classes: { ...old.classes, [attribute]: value } }));
+  onSetClass: OnSetClass = value => {
+    if (!this.state.loading) {
+      this.loadRandomDetection(value).then();
+    }
   };
 
   onSubmit = () => {
-    const filled = this.getFilledCount();
-    this.loadRandomDetection(filled > 0).then();
+    if (!this.state.loading) {
+      this.loadRandomDetection(null).then();
+    }
   };
 
   componentDidMount(): void {
-    this.loadRandomDetection(false).then();
+    this.loadRandomDetection(null).then();
   }
-
-  getFilledCount = () => {
-    const { classes } = this.state;
-    return Object.keys(classes).reduce((sum, key) => sum + (classes[key] ? 1 : 0), 0);
-  };
 }
 
 export default withI18n(OneClassifyPage);
