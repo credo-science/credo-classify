@@ -58,7 +58,7 @@ class Device(models.Model):
         pass
 
 
-class Detection(models.Model):
+class Detection(models.Model):  # TODO: use Detection object for store data from CREDO database instead DetectionAttribute
     """
     CREDO Detection imported from original CREDO Database.
 
