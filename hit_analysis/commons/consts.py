@@ -1,4 +1,5 @@
 # original fields of detection from JSON
+ID = 'id'
 DEVICE_ID = 'device_id'
 TIMESTAMP = 'timestamp'
 
@@ -34,5 +35,6 @@ CLASS_ARTIFACT = 'artifact'
 ARTIFACT_TOO_OFTEN = 'artifact_too_often'
 ARTIFACT_HOT_PIXEL = 'artifact_hot_pixel'
 ARTIFACT_NEAR_HOT_PIXEL = 'artifact_near_hot_pixel'
+ARTIFACT_NEAR_HOT_PIXEL_REFXY = 'artifact_near_hot_pixel_refxy'
 ARTIFACT_TOO_DARK = 'artifact_too_dark'
 ARTIFACT_TOO_LARGE_BRIGHT_AREA = 'artifact_too_large_bright_area'

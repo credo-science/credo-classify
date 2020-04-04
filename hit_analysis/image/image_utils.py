@@ -3,7 +3,8 @@ from typing import Tuple, Callable
 
 from PIL import Image
 
-from hit_analysis.commons.consts import IMAGE, FRAME_DECODED, DARKNESS, BRIGHTEST, BRIGHTER_COUNT
+from hit_analysis.commons.consts import IMAGE, FRAME_DECODED, DARKNESS, BRIGHTEST, BRIGHTER_COUNT, FRAME_CONTENT
+from hit_analysis.io.io_utils import decode_base64
 
 
 def get_brightest_channel(pixel: Tuple[int, int, int, int]) -> int:
@@ -18,11 +19,13 @@ def get_brightest_channel(pixel: Tuple[int, int, int, int]) -> int:
 
 def load_image(detection: dict) -> Image:
     """
-    Load image from 'frame_encoded' field to 'image' field and return
-    :param detection: detection with 'frame_encoded'
+    Load image from 'frame_encoded' or 'frame_content' field to 'image' field and return.
+    When 'frame_encoded' field is None then will be filled by decode the 'frame_content' field.
+    :param detection: detection with 'frame_encoded' or 'frame_content
     :return: image object
     """
-    assert detection.get(FRAME_DECODED) is not None
+    if detection.get(FRAME_DECODED) is None:
+        detection[FRAME_DECODED] = decode_base64(detection.get(FRAME_CONTENT))
 
     frame_decoded = detection.get(FRAME_DECODED)
     img = Image.open(BytesIO(frame_decoded)).convert('RGBA')
@@ -78,3 +81,10 @@ def count_of_brightest_pixels(detection: dict, threshold: int, pixel_parser: Cal
                 bright_count += 1
     detection[BRIGHTER_COUNT % threshold] = bright_count
     return bright_count
+
+
+def detection_load_parser(detection: dict):
+    if not detection.get(FRAME_CONTENT):
+        return False
+    load_image(detection)
+    return True

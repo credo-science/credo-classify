@@ -13,9 +13,9 @@ def hot_pixel_classify(group: Dict[Tuple[int, int], List[dict]], often: int) -> 
     :param group: list of detections grouped by XY of detection
     :param often: when len(group) is grater or equal than often param then it will be classified as artifact
     """
-    count = len(group.keys())
-    if count >= often:
-        for detections in group.values():
+    for detections in group.values():
+        count = len(detections)
+        if count >= often:
             for d in detections:
                 d[CLASSIFIED] = CLASS_ARTIFACT
                 d[ARTIFACT_HOT_PIXEL] = count
@@ -24,7 +24,7 @@ def hot_pixel_classify(group: Dict[Tuple[int, int], List[dict]], often: int) -> 
 def group_for_hot_pixel(detections: List[dict], exclusion: Optional[Callable[[dict], bool]] = None) -> Dict[Tuple[int, int], Dict[Tuple[int, int], List[dict]]]:
     """
     Group detections by resolution and XY of detection
-    :param detections: ungrouped detections
+    :param detections: ungrouped detections, should be list of detections for one device
     :param exclusion: when is not None and return True then object will be ignored
     :return: detections grouped by resolution and XY of detection
     """

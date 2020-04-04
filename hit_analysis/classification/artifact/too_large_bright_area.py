@@ -2,6 +2,12 @@ from hit_analysis.commons.consts import DARKNESS, BRIGHTEST, CLASSIFIED, CLASS_A
 from hit_analysis.image.image_utils import count_of_brightest_pixels
 
 
+def by_darkness_brightest_threshold(self, detection: dict) -> int:
+    d = detection.get(DARKNESS)
+    b = detection.get(BRIGHTEST)
+    return (b - d) / 4 + d
+
+
 def too_large_bright_area_classify(detection: dict, threshold: int, bac: float) -> None:
     """
     Classify detections as artifact when area of brightest pixels than threshold is larger than bac param.
@@ -22,7 +28,7 @@ def too_large_bright_area_classify(detection: dict, threshold: int, bac: float) 
         detection[ARTIFACT_TOO_LARGE_BRIGHT_AREA] = p
 
 
-def too_large_bright_area(detection: dict, threshold: int, bac: float) -> None:
+def too_large_bright_area(detection: dict, threshold: int, bac: float = 30) -> None:
     """
     Classify detections as artifact when area of brightest pixels than threshold is larger than bac param.
     :param detection: detection with 'image' field

@@ -1,10 +1,10 @@
 from io import BytesIO
-from typing import List
+from typing import List, Dict
 
 from PIL import Image
 
 from hit_analysis.commons.config import Config
-from hit_analysis.commons.consts import IMAGE, CROP_X, CROP_Y, CROP_SIZE, FRAME_DECODED, EDGE
+from hit_analysis.commons.consts import IMAGE, CROP_X, CROP_Y, CROP_SIZE, FRAME_DECODED, EDGE, CLASSIFIED, CLASS_ARTIFACT
 
 
 def append_to_frame(image: Image, detection: dict):
@@ -90,3 +90,28 @@ def do_reconstruct(detections: List[dict], config: Config) -> None:
         config.store_png(['recostruct', edge, *sp], d.get('id'), d.get('frame_decoded'))
     if config.out_dir:
         image.save('%s/recostruct/%s/%s/frame.png' % (config.out_dir, edge, "/".join(sp)))
+
+
+def check_all_artifacts(detections: List[dict]) -> bool:
+    """
+    Check if all detections is just classified as artifacts
+    :param detections: list of detections to check
+    :return: True - all detections is artifacts
+    """
+    for d in detections:
+        if d.get(CLASSIFIED) != CLASS_ARTIFACT:
+            return False
+    return True
+
+
+def filter_unclassified(by_timestamp: Dict[int, List[dict]]) -> List[int]:
+    """
+    Filter detections with one or more unclassified as artifact.
+    :param by_timestamp: detections grouped by timestamp
+    :return: list of filtered timestamp keys
+    """
+    ret = []
+    for timestamp, detections in by_timestamp.items():
+        if not check_all_artifacts(detections):
+            ret.append(timestamp)
+    return ret

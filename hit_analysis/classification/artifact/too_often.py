@@ -23,14 +23,14 @@ def too_often_classify(group: Dict[int, List[dict]], often: int) -> None:
 def group_for_too_often(detections: List[dict], time_division: int = 60000, exclusion: Optional[Callable[[dict], bool]] = None) -> Dict[int, Dict[int, List[dict]]]:
     """
     Group detections for too_often_filter.
-    :param detections: ungrouped list of detections
+    :param detections: ungrouped list of detections, should be list of detections for one device
     :param time_division: time window for division in ms, default 60000ms = 1 minute
     :param exclusion: when is not None and return True then object will be ignored
     :return: list of detection grouped by time_division then timestamp
     """
     grouped = group_by_timestamp_division(detections, time_division, exclusion)
     ret = {}
-    for k, v in grouped.values():
+    for k, v in grouped.items():
         r = group_by_timestamp_division(v, 1)
         if len(r.keys()) > 0:
             ret[k] = r
