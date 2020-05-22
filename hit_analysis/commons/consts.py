@@ -19,7 +19,7 @@ IMAGE = 'image'
 # image basic stats
 DARKNESS = 'image_darkness'
 BRIGHTEST = 'image_brightest'
-BRIGHTER_COUNT = 'image_brighter_count_%d'
+BRIGHTER_COUNT = 'image_brighter_count_%03d'
 
 # reconstruction dark filled area
 EDGE = 'edge'
