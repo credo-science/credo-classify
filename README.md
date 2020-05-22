@@ -64,3 +64,9 @@ or via Daphne server:
 ```shell script
 $ daphne -b 0.0.0.0 -p 80 credo_classification.asgi:application
 ```
+
+### Run without database configuration (only analysis)
+
+```shell script
+$ python cli.py -d hits -o /tmp/output_files < input_detections.json
+```
