@@ -16,9 +16,9 @@ def too_dark_classify(detection: dict, spread: int = 50) -> None:
 
     diff = brightest - darkness
 
+    detection[ARTIFACT_TOO_DARK] = diff
     if diff < spread:
         detection[CLASSIFIED] = CLASS_ARTIFACT
-        detection[ARTIFACT_TOO_DARK] = diff
 
 
 def too_dark(detection: dict, spread: int = 50) -> None:

@@ -22,10 +22,10 @@ def too_large_bright_area_classify(detection: dict, threshold: int, bac: float) 
     area = detection.get(BRIGHTER_COUNT % threshold)
 
     p = area * 1000 / (width * height)
+    detection[ARTIFACT_TOO_LARGE_BRIGHT_AREA] = p
 
     if p > bac:
         detection[CLASSIFIED] = CLASS_ARTIFACT
-        detection[ARTIFACT_TOO_LARGE_BRIGHT_AREA] = p
 
 
 def too_large_bright_area(detection: dict, threshold: int, bac: float = 30) -> None:
