@@ -30,13 +30,13 @@ def near_hot_pixel_classify(group: Dict[Tuple[int, int], List[dict]], often: int
     :param often: when len(group) is grater or equal than often param then it will be classified as artifact
     :param key: reference X and Y, stored in artifact_near_hot_pixel_refxy when classified as artifact
     """
-    for detections in group.values():
+    for k, detections in group.items():
         count = len(detections)
         if count >= often:
             for d in detections:
                 d[CLASSIFIED] = CLASS_ARTIFACT
                 d[ARTIFACT_NEAR_HOT_PIXEL] = count
-                d[ARTIFACT_NEAR_HOT_PIXEL_REFXY] = key
+                d[ARTIFACT_NEAR_HOT_PIXEL_REFXY] = k
 
 
 def group_for_near_hot_pixel(detections: List[dict], distance: float, exclusion: Optional[Callable[[dict], bool]] = None) -> Dict[Tuple[int, int], Dict[Tuple[int, int], List[dict]]]:
