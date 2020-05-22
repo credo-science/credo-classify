@@ -66,7 +66,7 @@ def count_of_brightest_pixels(detection: dict, threshold: int, pixel_parser: Cal
     :param detection: detection with 'image' field
     :param threshold: greater of equal bright of pixel will be counted
     :param pixel_parser: get one value from RGBA channels
-    :return: count of pixel brighter than threshold
+    :return: count of pixel brighter or equal than threshold
     """
     assert detection.get(IMAGE) is not None
 
@@ -77,7 +77,7 @@ def count_of_brightest_pixels(detection: dict, threshold: int, pixel_parser: Cal
     for cy in range(height):
         for cx in range(width):
             g = pixel_parser(hit_img.getpixel((cx, cy)))
-            if g > threshold:
+            if g >= threshold:
                 bright_count += 1
     detection[BRIGHTER_COUNT % threshold] = bright_count
     return bright_count
