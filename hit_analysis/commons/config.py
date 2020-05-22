@@ -24,6 +24,10 @@ class Config:
     too_large_bright_area_bac = 30
     too_large_bright_area_threshold = by_darkness_brightest_threshold
 
+    count_of_brightest_pixels = True  # set to True cause significantly increase time of analysis
+    count_of_brightest_pixels_from = 0
+    count_of_brightest_pixels_to = 256
+
     log_indent = 0
 
     def __init__(self, out_dir: str = None, log: bool = True) -> None:

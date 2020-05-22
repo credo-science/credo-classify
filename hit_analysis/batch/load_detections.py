@@ -11,7 +11,7 @@ from hit_analysis.commons.consts import CLASSIFIED, CLASS_ARTIFACT, DEVICE_ID, F
 from hit_analysis.commons.grouping import group_by_device_id
 from hit_analysis.commons.utils import get_resolution_key, join_tuple
 from hit_analysis.image.cut_reconstruction import check_all_artifacts, do_reconstruct
-from hit_analysis.image.image_utils import load_image
+from hit_analysis.image.image_utils import count_of_brightest_pixels
 from hit_analysis.io.io_utils import decode_base64
 
 
@@ -98,6 +98,12 @@ def image_simple_classify(detections: List[dict], config: Config) -> None:
             too_dark(d, config.too_dark_spread)
             too_large_bright_area_threshold = config.too_large_bright_area_threshold
             too_large_bright_area(d, too_large_bright_area_threshold(detection=d), config.too_large_bright_area_bac)
+
+            # additional image_brighter_count_XXX calculation
+            if config.count_of_brightest_pixels:
+                for t in range(config.count_of_brightest_pixels_from, config.count_of_brightest_pixels_to):
+                    count_of_brightest_pixels(d, t)
+
             count += 1
     config.print_log('... simple classify %d done' % count, timing)
 
