@@ -32,11 +32,11 @@ def near_hot_pixel_classify(group: Dict[Tuple[int, int], List[dict]], often: int
     """
     for k, detections in group.items():
         count = len(detections)
-        if count >= often:
-            for d in detections:
+        for d in detections:
+            if count >= often:
                 d[CLASSIFIED] = CLASS_ARTIFACT
-                d[ARTIFACT_NEAR_HOT_PIXEL] = count
-                d[ARTIFACT_NEAR_HOT_PIXEL_REFXY] = k
+            d[ARTIFACT_NEAR_HOT_PIXEL] = count
+            d[ARTIFACT_NEAR_HOT_PIXEL_REFXY] = k
 
 
 def group_for_near_hot_pixel(detections: List[dict], distance: float, exclusion: Optional[Callable[[dict], bool]] = None) -> Dict[Tuple[int, int], Dict[Tuple[int, int], List[dict]]]:

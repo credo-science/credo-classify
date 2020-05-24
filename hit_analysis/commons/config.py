@@ -19,12 +19,12 @@ class Config:
     too_often = 4
     too_often_time_division = 60000
 
-    simple_classify_ignore_artifacts = True
+    simple_classify_ignore_artifacts = False  # set to True to: no image processing classified as artifact by *hot_pizel and too_often
     too_dark_spread = 50
     too_large_bright_area_bac = 30
     too_large_bright_area_threshold = by_darkness_brightest_threshold
 
-    count_of_brightest_pixels = True  # set to True cause significantly increase time of analysis
+    count_of_brightest_pixels = False  # set to True cause significantly increase time of analysis
     count_of_brightest_pixels_from = 0
     count_of_brightest_pixels_to = 256
 

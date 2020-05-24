@@ -20,6 +20,8 @@ IMAGE = 'image'
 DARKNESS = 'image_darkness'  # bright of darkness pixel (0-255)
 BRIGHTEST = 'image_brightest'  # bright of brightest pixel (0-255)
 BRIGHTER_COUNT = 'image_brighter_count_%03d'  # count of pixels brighter or equal than %03d
+BRIGHTER_COUNT_USED = 'image_brighter_count_used'  # count of pixels brighter or equal than BRIGHTER_COUNT_THRESHOLD
+BRIGHTER_COUNT_THRESHOLD = 'image_brighter_count_threshold'  # used threshold for BRIGHTER_COUNT_USED
 
 # reconstruction dark filled area
 EDGE = 'edge'

@@ -15,10 +15,10 @@ def hot_pixel_classify(group: Dict[Tuple[int, int], List[dict]], often: int) -> 
     """
     for detections in group.values():
         count = len(detections)
-        if count >= often:
-            for d in detections:
+        for d in detections:
+            if count >= often:
                 d[CLASSIFIED] = CLASS_ARTIFACT
-                d[ARTIFACT_HOT_PIXEL] = count
+            d[ARTIFACT_HOT_PIXEL] = count
 
 
 def group_for_hot_pixel(detections: List[dict], exclusion: Optional[Callable[[dict], bool]] = None) -> Dict[Tuple[int, int], Dict[Tuple[int, int], List[dict]]]:

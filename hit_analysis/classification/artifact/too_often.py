@@ -13,11 +13,11 @@ def too_often_classify(group: Dict[int, List[dict]], often: int) -> None:
     :param often: when len(group) is grater or equal than often param then it will be classified as artifact
     """
     count = len(group.keys())
-    if count >= often:
-        for detections in group.values():
-            for d in detections:
+    for detections in group.values():
+        for d in detections:
+            if count >= often:
                 d[CLASSIFIED] = CLASS_ARTIFACT
-                d[ARTIFACT_TOO_OFTEN] = count
+            d[ARTIFACT_TOO_OFTEN] = count
 
 
 def group_for_too_often(detections: List[dict], time_division: int = 60000, exclusion: Optional[Callable[[dict], bool]] = None) -> Dict[int, Dict[int, List[dict]]]:

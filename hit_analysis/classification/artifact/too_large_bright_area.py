@@ -1,4 +1,5 @@
-from hit_analysis.commons.consts import DARKNESS, BRIGHTEST, CLASSIFIED, CLASS_ARTIFACT, ARTIFACT_TOO_LARGE_BRIGHT_AREA, BRIGHTER_COUNT, IMAGE
+from hit_analysis.commons.consts import DARKNESS, BRIGHTEST, CLASSIFIED, CLASS_ARTIFACT, ARTIFACT_TOO_LARGE_BRIGHT_AREA, BRIGHTER_COUNT, IMAGE, \
+    BRIGHTER_COUNT_USED, BRIGHTER_COUNT_THRESHOLD
 from hit_analysis.image.image_utils import count_of_brightest_pixels
 
 
@@ -23,6 +24,8 @@ def too_large_bright_area_classify(detection: dict, threshold: int, bac: float) 
 
     p = area * 1000 / (width * height)
     detection[ARTIFACT_TOO_LARGE_BRIGHT_AREA] = p
+    detection[BRIGHTER_COUNT_USED] = area
+    detection[BRIGHTER_COUNT_THRESHOLD] = threshold
 
     if p > bac:
         detection[CLASSIFIED] = CLASS_ARTIFACT
