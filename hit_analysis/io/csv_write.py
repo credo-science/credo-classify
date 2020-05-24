@@ -28,23 +28,33 @@ def gen_csv_header(objects: List[dict]) -> dict:
     return options
 
 
-def write_to_csv(csvfile, objects: List[dict], options: dict = None, header: List[str] = None, exclude: set = None) -> None:
+def write_to_csv(csvfile, objects: List[dict], options: dict = None, header: List[str] = None, exclude: set = None, regex_exclude: List = None) -> None:
     """
 
     :param csvfile: file stream to output in CSV format
     :param objects: objects to write to CSV
     :param options: options for CSV columns, see: gen_csv_header
-    :param header: optinal, columns to write
+    :param header: optional, columns to write
     :param exclude: exclude columns
+    :param regex_exclude: exclude columns regex
     """
     writer = csv.writer(csvfile)
     _header = header or sorted(options.keys())
     _options = options or {}
     _exclude = exclude or set()
+    _regex_exclude = regex_exclude or []
+
+    def in_exclude(col: str):
+        if col in _exclude:
+            return True
+        for r in _regex_exclude:
+            if r.match(col):
+                return True
+        return False
 
     header_row = []
     for h in _header:
-        if h in _exclude:
+        if in_exclude(h):
             continue
 
         opt = _options.get(h, {})
@@ -57,7 +67,7 @@ def write_to_csv(csvfile, objects: List[dict], options: dict = None, header: Lis
     for o in objects:
         row = []
         for h in _header:
-            if h in _exclude:
+            if in_exclude(h):
                 continue
 
             opt = _options.get(h, {})

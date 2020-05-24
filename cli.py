@@ -1,4 +1,5 @@
 import argparse
+import re
 import sys
 from argparse import Namespace
 
@@ -32,7 +33,7 @@ def main():
 
         with open('%s/output.csv' % out_dir, 'w', newline='') as csvfile:
             opt = gen_csv_header(objects)
-            write_to_csv(csvfile, objects, opt, exclude={'frame_content'})
+            write_to_csv(csvfile, objects, opt, exclude={'frame_content'}, regex_exclude=[re.compile('image_brighter_count_\\d\\d\\d')])
 
     if input_file != '-':
         inp.close()
