@@ -46,7 +46,6 @@ class GenericImporter(APIView):
         - if /?nocheck=1 then no checked existing row
         - attrbulk for bulk insertion of attributes (can't use private field)
         """
-        attrbulk = []
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -85,7 +84,6 @@ class GenericImporter(APIView):
                 e = self.model_class(id=v_id, **v_fields)
                 self.post_import(e, unit)
                 bulk.append(e)
-                self.import_as_attributes(e, unit, check, attrbulk)
             else:
                 changed = False
                 for key, value in v_fields.items():
@@ -93,11 +91,8 @@ class GenericImporter(APIView):
                         changed = True
                         setattr(v, key, value)
 
-                attr_changed = self.import_as_attributes(v, unit, check, attrbulk)
-
                 if changed:
                     v.save()
-                if attr_changed or changed:
                     updated += 1
                 else:
                     not_changed += 1
@@ -105,20 +100,12 @@ class GenericImporter(APIView):
         if len(bulk):
             self.model_class.objects.bulk_create(bulk)
 
-        self.bulk_attributes(attrbulk)
-
         return Response({
             'parsed': parsed,
             'inserted': inserted,
             'updated': updated,
             'not_changed': not_changed
         })
-
-    def import_as_attributes(self, entity: Model, unit: dict, check: bool, attrbulk: List) -> bool:
-        return False
-
-    def bulk_attributes(self, attrbulk: List):
-        pass
 
     def post_import(self, entity, source):
         pass
@@ -156,56 +143,7 @@ class ImportDetections(GenericImporter):
     serializer_class = DetectionFileSerializer
     unit_name = 'detections'
     model_class = Detection
-    fields_to_import = ['timestamp', 'time_received', 'device_id', 'user_id', 'team_id', 'source', 'provider', 'metadata']
-    attributes_fields = ['accuracy', 'latitude', 'longitude', 'altitude', 'height', 'width', 'x', 'y']
-    attributes_buff = {}
-    path_exist = set()
-
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        for f in self.attributes_fields:
-            self.attributes_buff[f] = Attribute.objects.filter(name=f).first()
-
-    def import_as_attributes(self, entity: Detection, unit: dict, check: bool, attrbulk: List) -> bool:
-        """
-        Import rest attributes of Detection to DetectionAttribute model.
-
-        Performance optimizations:
-        - bulk insertion for new rows, bulk stored in self.bulk object field
-        - if /?nocheck=1 then no checked existing row
-        - cache of path existing in self.path_exist object field
-        """
-        changed = False
-        user = self.request.user
-        for f in self.attributes_fields:
-            filters = {
-                'detection': entity,
-                'attribute': self.attributes_buff[f],
-                'author': user
-            }
-
-            da = DetectionAttribute.objects.filter(**filters).first() if check else None  # type: Optional[DetectionAttribute]
-            rv = unit.get(f)
-            if rv is None:
-                if da is not None:
-                    changed = True
-                    da.delete()
-            else:
-                v = float(rv)
-                if da is None:
-                    changed = True
-                    attrbulk.append(DetectionAttribute(**filters, value=v))
-                else:
-                    changed = da.value != v
-                    if changed:
-                        da.value = v
-                        da.save()
-
-        return changed
-
-    def bulk_attributes(self, attrbulk: List):
-        if len(attrbulk):
-            DetectionAttribute.objects.bulk_create(attrbulk)
+    fields_to_import = ['timestamp', 'time_received', 'device_id', 'user_id', 'team_id', 'source', 'provider', 'metadata', 'accuracy', 'latitude', 'longitude', 'altitude', 'height', 'width', 'x', 'y']
 
     def post_import(self, entity: Detection, source):
         frame_content = source.get('frame_content')
@@ -215,13 +153,13 @@ class ImportDetections(GenericImporter):
                 entity.frame_content = base64.decodebytes(str.encode(frame_content))
                 image = Image.open(io.BytesIO(entity.frame_content))
                 entity.mime = 'image/png'
-                entity.width, entity.height = image.size
+                entity.detection_width, entity.detection_height = image.size
                 entity.random = randrange(-2147483648, 2147483647)
             except:
                 entity.frame_content = None
                 entity.mime = None
-                entity.width = None
-                entity.height = None
+                entity.detection_width = None
+                entity.detection_height = None
         else:
             entity.has_image = False
 

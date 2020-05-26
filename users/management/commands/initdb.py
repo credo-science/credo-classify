@@ -52,14 +52,6 @@ class Command(BaseCommand):
             return
 
         if u is not None:
-            create_attribute(name='accuracy', description='GPS accuaracy', author=u, kind='b', active=True)
-            create_attribute(name='latitude', description='GPS latitude', author=u, kind='b', active=True)
-            create_attribute(name='longitude', description='GPS longitude', author=u, kind='b', active=True)
-            create_attribute(name='altitude', description='GPS altitude', author=u, kind='b', active=True)
-            create_attribute(name='height', description='Height of image frame', author=u, kind='b', active=True)
-            create_attribute(name='width', description='Width of image frame', author=u, kind='b', active=True)
-            create_attribute(name='x', description='X on image of center of crop', author=u, kind='b', active=True)
-            create_attribute(name='y', description='Y on image of center of crop', author=u, kind='b', active=True)
             create_attribute(name='spot', description='Spot-like hit', kind='cs', author=u, active=True)
             create_attribute(name='worm', description='Worm-like hit', kind='cs', author=u, active=True)
             create_attribute(name='track', description='Track-like hit', kind='cs', author=u, active=True)
@@ -68,3 +60,7 @@ class Command(BaseCommand):
             create_attribute(name='track', description='Track-like hit', kind='cs', author=u, active=True)
             create_attribute(name='artifact', description='Artifact (fake hit: hot pixel, damage of CMOS/CCD, deliberate fraud)', kind='cs', author=u, active=True)
             create_attribute(name='class', description='One arbitrary class: 1 - spot, 2 - worm, 3 - track, 4 - artifact, 5 - multi, 6 - amazing, n - future defined', kind='co', author=u, active=True)
+            create_attribute(name='multi', description='Multi hit', kind='cs', author=u, active=True)
+            create_attribute(name='artifact_hardware', description='Hardware damaged artifact', kind='cs', author=u, active=True)
+            create_attribute(name='artifact_cover', description='Hardware damaged artifact', kind='cs', author=u, active=True)
+            create_attribute(name='artifact_cheat', description='Hardware damaged artifact', kind='cs', author=u, active=True)
