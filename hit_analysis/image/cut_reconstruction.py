@@ -4,7 +4,7 @@ from typing import List, Dict
 from PIL import Image
 
 from hit_analysis.commons.config import Config
-from hit_analysis.commons.consts import IMAGE, CROP_X, CROP_Y, CROP_SIZE, FRAME_DECODED, EDGE, CLASSIFIED, CLASS_ARTIFACT
+from hit_analysis.commons.consts import IMAGE, CROP_X, CROP_Y, CROP_SIZE, FRAME_DECODED, EDGE, CLASSIFIED, CLASS_ARTIFACT, X, WIDTH, Y, HEIGHT
 
 
 def append_to_frame(image: Image, detection: dict):
@@ -26,7 +26,6 @@ def append_to_frame(image: Image, detection: dict):
         fx = width // 2
         fy = height // 2
     else:
-        detection[EDGE] = True
         for cy in range(height):
             for cx in range(width):
                 g = gray.getpixel((cx, cy))
@@ -70,6 +69,19 @@ def do_reconstruct(detections: List[dict], config: Config) -> None:
     :param detections: should be sorted by detection_id
     :param config: config object
     """
+    for d in detections:
+        hit_img = d.get(IMAGE)
+        width = hit_img.size[0]
+        height = hit_img.size[1]
+
+        if width != height:
+            d[EDGE] = True
+        else:
+            fx = width // 2
+            fy = height // 2
+            if fx > d.get(X) or d.get(WIDTH) < fx + d.get(X) or fy > d.get(Y) or d.get(HEIGHT) < fy + d.get(Y):
+                d[EDGE] = True
+
     if len(detections) <= 1:
         return
 
