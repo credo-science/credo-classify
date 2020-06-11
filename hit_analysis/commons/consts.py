@@ -15,6 +15,7 @@ FRAME_CONTENT = 'frame_content'  # excluded in CSV
 # added fields by processing functions (all excluded in CSV)
 FRAME_DECODED = 'frame_decoded'
 IMAGE = 'image'
+ORIG_IMAGE = 'orig_image'
 
 # image basic stats
 DARKNESS = 'image_darkness'  # bright of darkness pixel (0-255)

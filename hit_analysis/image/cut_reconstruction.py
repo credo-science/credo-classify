@@ -4,53 +4,30 @@ from typing import List, Dict
 from PIL import Image
 
 from hit_analysis.commons.config import Config
-from hit_analysis.commons.consts import IMAGE, CROP_X, CROP_Y, CROP_SIZE, FRAME_DECODED, EDGE, CLASSIFIED, CLASS_ARTIFACT, X, WIDTH, Y, HEIGHT
+from hit_analysis.commons.consts import IMAGE, CROP_X, CROP_Y, CROP_SIZE, FRAME_DECODED, CLASSIFIED, CLASS_ARTIFACT, ORIG_IMAGE
 
 
 def append_to_frame(image: Image, detection: dict):
     hit_img = detection.get(IMAGE)
-    # hit_img.save('/tmp/%d_orig.png' % detection.get('id'))
-    width = hit_img.size[0]
-    height = hit_img.size[1]
-    x = detection.get('x')
-    y = detection.get('y')
 
-    gray = hit_img.convert('L')
-    # mask = gray.point(lambda p: 0 if p == 0 else 255)
+    cx = detection[CROP_X]
+    cy = detection[CROP_Y]
+    w, h = detection[CROP_SIZE]
 
-    mg = 0
-    fx = 0
-    fy = 0
-
-    if width == height:
-        fx = width // 2
-        fy = height // 2
-    else:
-        for cy in range(height):
-            for cx in range(width):
-                g = gray.getpixel((cx, cy))
-                if mg < g:
-                    mg = g
-                    fx = cx
-                    fy = cy
-
-    image.paste(hit_img, (x - fx, y - fy, x - fx + width, y - fy + height))  # , mask)
+    image.paste(hit_img, (cx, cy, cx + w, cy + h))
 
     # fix bug in early CREDO Detector App: black filled boundary 1px too large
-    image.paste(image.crop((x - fx + width - 1, y - fy, x - fx + width, y - fy + height)), (x - fx + width, y - fy, x - fx + width + 1, y - fy + height))
-    image.paste(image.crop((x - fx, y - fy + height - 1, x - fx + width, y - fy + height)), (x - fx, y - fy + height, x - fx + width, y - fy + height + 1))
-    image.paste(image.crop((x - fx + width - 1, y - fy + height - 1, x - fx + width, y - fy + height)), (x - fx + width, y - fy + height, x - fx + width + 1, y - fy + height + 1))
-
-    detection[CROP_X] = x - fx
-    detection[CROP_Y] = y - fy
-    detection[CROP_SIZE] = (width, height)
+    image.paste(image.crop((cx + w - 1, cy, cx + w, cy + h)), (cx + w, cy, cx + w + 1, cy + h))
+    image.paste(image.crop((cx, cy + h - 1, cx + w, cy + h)), (cx, cy + h, cx + w, cy + h + 1))
+    image.paste(image.crop((cx + w - 1, cy + h - 1, cx + w, cy + h)), (cx + w, cy + h, cx + w + 1, cy + h + 1))
 
 
 def replace_from_frame(image: Image, detection: dict):
-    x = detection.get(CROP_X)
-    y = detection.get(CROP_Y)
+    cx = detection.get(CROP_X)
+    cy = detection.get(CROP_Y)
     w, h = detection.get(CROP_SIZE)
-    hit_img = image.crop((x, y, x + w, y + h))
+    hit_img = image.crop((cx, cy, cx + w, cy + h))
+    detection[ORIG_IMAGE] = detection[IMAGE]
     detection[IMAGE] = hit_img
     with BytesIO() as output:
         hit_img.save(output, format="png")
@@ -69,19 +46,6 @@ def do_reconstruct(detections: List[dict], config: Config) -> None:
     :param detections: should be sorted by detection_id
     :param config: config object
     """
-    for d in detections:
-        hit_img = d.get(IMAGE)
-        width = hit_img.size[0]
-        height = hit_img.size[1]
-
-        if width != height:
-            d[EDGE] = True
-        else:
-            fx = width // 2
-            fy = height // 2
-            if fx > d.get(X) or d.get(WIDTH) < fx + d.get(X) or fy > d.get(Y) or d.get(HEIGHT) < fy + d.get(Y):
-                d[EDGE] = True
-
     if len(detections) <= 1:
         return
 
@@ -93,13 +57,11 @@ def do_reconstruct(detections: List[dict], config: Config) -> None:
         if d.get('edge'):
             edge = 'edge'
     for d in reversed(detections):
-        frame_decoded = d.get('frame_decoded')
-        d['frame_decoded_orig'] = frame_decoded
         append_to_frame(image, d)
-        config.store_png(['recostruct', edge, *sp, 'orig'], d.get('id'), frame_decoded)
+        config.store_png(['recostruct', edge, *sp, 'orig'], d.get('id'), d.get(IMAGE))
     for d in detections:
         replace_from_frame(image, d)
-        config.store_png(['recostruct', edge, *sp], d.get('id'), d.get('frame_decoded'))
+        config.store_png(['recostruct', edge, *sp], d.get('id'), d.get(IMAGE))
     if config.out_dir:
         image.save('%s/recostruct/%s/%s/frame.png' % (config.out_dir, edge, "/".join(sp)))
 

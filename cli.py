@@ -8,7 +8,8 @@ from hit_analysis.batch.load_detections import analyse_detections_batch
 from hit_analysis.commons.config import Config
 from hit_analysis.image.image_utils import detection_load_parser
 from hit_analysis.io.csv_write import gen_csv_header, write_to_csv
-from hit_analysis.io.load_write import load_objects_from_stream
+from hit_analysis.io.io_utils import progress_and_process_image
+from hit_analysis.io.load_write import load_json
 from hit_analysis.sandbox.sandbox_analysis import sandbox_analysis
 
 
@@ -30,14 +31,13 @@ def main():
     load = options.load
 
     config = Config(out_dir)
-    inp = sys.stdin if input_file == '-' else open(input_file, 'r')
 
     if working_set == 'standard':
         if datatype != 'hits':
             print('Other datatypes than hits is not supported yet')
 
         if datatype == 'hits':
-            objects = load_objects_from_stream(inp, config, detection_load_parser)
+            objects, count = load_json(input_file, progress_and_process_image)
             analyse_detections_batch(objects, config)
 
             with open('%s/output.csv' % out_dir, 'w', newline='') as csvfile:
@@ -47,9 +47,6 @@ def main():
             if serialize:
                 with open(serialize, 'wb') as f:
                     pickle.dump(objects, f)
-
-        if input_file != '-':
-            inp.close()
     elif working_set == 'sandbox':
         with open(load, "rb") as f:
             objects = pickle.load(f)

@@ -8,7 +8,8 @@ from hit_analysis.classification.artifact.too_large_bright_area import too_large
 from hit_analysis.classification.artifact.too_often import group_for_too_often, too_often_process
 from hit_analysis.commons.config import Config
 from hit_analysis.commons.consts import CLASSIFIED, CLASS_ARTIFACT, DEVICE_ID, FRAME_DECODED, ARTIFACT_NEAR_HOT_PIXEL_REFXY, X, Y, ARTIFACT_HOT_PIXEL, \
-    ARTIFACT_NEAR_HOT_PIXEL, ID, ARTIFACT_TOO_OFTEN, TIMESTAMP, ARTIFACT_TOO_DARK, ARTIFACT_TOO_LARGE_BRIGHT_AREA, FRAME_CONTENT, ARTIFACT_NEAR_HOT_PIXEL2
+    ARTIFACT_NEAR_HOT_PIXEL, ID, ARTIFACT_TOO_OFTEN, TIMESTAMP, ARTIFACT_TOO_DARK, ARTIFACT_TOO_LARGE_BRIGHT_AREA, FRAME_CONTENT, ARTIFACT_NEAR_HOT_PIXEL2, \
+    IMAGE
 from hit_analysis.commons.grouping import group_by_device_id
 from hit_analysis.commons.utils import get_resolution_key, join_tuple
 from hit_analysis.image.cut_reconstruction import check_all_artifacts, do_reconstruct
@@ -25,7 +26,7 @@ def store_debug_pngs(detections, config: Config):
     for d in detections:
         _id = d.get(ID)
         kd = d.get(DEVICE_ID)
-        img = d.get(FRAME_DECODED) or decode_base64(d.get(FRAME_CONTENT))
+        img = d.get(IMAGE)
 
         if d.get(CLASSIFIED) == CLASS_ARTIFACT:
             rk = get_resolution_key(d)

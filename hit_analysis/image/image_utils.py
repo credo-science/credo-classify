@@ -3,7 +3,8 @@ from typing import Tuple, Callable
 
 from PIL import Image
 
-from hit_analysis.commons.consts import IMAGE, FRAME_DECODED, DARKNESS, BRIGHTEST, BRIGHTER_COUNT, FRAME_CONTENT
+from hit_analysis.commons.consts import IMAGE, FRAME_DECODED, DARKNESS, BRIGHTEST, BRIGHTER_COUNT, FRAME_CONTENT, CROP_SIZE, EDGE, X, \
+    WIDTH, Y, HEIGHT, CROP_X, CROP_Y
 from hit_analysis.io.io_utils import decode_base64
 
 
@@ -19,9 +20,21 @@ def get_brightest_channel(pixel: Tuple[int, int, int, int]) -> int:
 
 def load_image(detection: dict) -> Image:
     """
-    Load image from 'frame_encoded' or 'frame_content' field to 'image' field and return.
-    When 'frame_encoded' field is None then will be filled by decode the 'frame_content' field.
-    :param detection: detection with 'frame_encoded' or 'frame_content
+    Load image from ``frame_content`` to object's key with some calculated metrics.
+
+    Required keys:
+      * ``frame_encoded`` (byte array) or ``frame_content`` (base64-encoded string)
+
+    Keys will be add:
+      * ``frame_encoded``: when no ``frame_encoded`` then ``frame_content`` will be decoded and stored in this key
+      * ``image``: object of ``PIP`` library with loaded image
+      * ``crop_size``: tuple of (width, height) of loaded image
+      * ``edge``: ``True`` when image is near edge of original image frame (half of max of width and height of loaded image)
+      * ``crop_x`` and ``crop_y``: coordinates of left-top corner of loaded image in original image frame
+
+    The ``crop_x`` and ``crop_y`` may be used to reconstruction original image frame from loaded images.
+
+    :param detection: detection object with frame_encoded or frame_content
     :return: image object
     """
     if detection.get(FRAME_DECODED) is None:
@@ -30,6 +43,66 @@ def load_image(detection: dict) -> Image:
     frame_decoded = detection.get(FRAME_DECODED)
     img = Image.open(BytesIO(frame_decoded)).convert('RGBA')
     detection[IMAGE] = img
+
+    # extract basic image parameters
+    detection[CROP_SIZE] = img.size
+    w, h = img.size
+
+    # center of crop position
+    x = detection.get(X)
+    y = detection.get(Y)
+
+    # CMOS/CCD resolution
+    width = detection.get(WIDTH)
+    height = detection.get(HEIGHT)
+
+    # check if detection is at the edge of sensor frame
+    detection[EDGE] = False
+
+    fx = w // 2
+    fy = h // 2
+    fm = max(fx, fy)
+    left_edge = fm > x
+    top_edge = fm > y
+    right_edge = width < fm + x
+    bottom_edge = height < fm + y
+
+    if w != h:
+        detection[EDGE] = True
+    else:
+        if left_edge or top_edge or right_edge or bottom_edge:
+            detection[EDGE] = True
+
+    # calc left top position on sensor frame of image crop
+    if detection[EDGE]:
+        if left_edge and top_edge:
+            detection[CROP_X] = 0
+            detection[CROP_Y] = 0
+        elif top_edge and right_edge:
+            detection[CROP_X] = width - w
+            detection[CROP_Y] = 0
+        elif right_edge and bottom_edge:
+            detection[CROP_X] = width - w
+            detection[CROP_Y] = height - h
+        elif bottom_edge and left_edge:
+            detection[CROP_X] = 0
+            detection[CROP_Y] = height - h
+        elif left_edge:
+            detection[CROP_X] = 0
+            detection[CROP_Y] = y - fy
+        elif top_edge:
+            detection[CROP_X] = x - fx
+            detection[CROP_Y] = 0
+        elif right_edge:
+            detection[CROP_X] = width - w
+            detection[CROP_Y] = y - fy
+        elif bottom_edge:
+            detection[CROP_X] = x - fx
+            detection[CROP_Y] = y - fy
+    else:
+        detection[CROP_X] = x - fx
+        detection[CROP_Y] = y - fy
+
     return img
 
 

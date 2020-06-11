@@ -1,27 +1,77 @@
-from typing import List, TextIO, Callable, Optional
+import pickle
+import sys
+from typing import List, TextIO, Callable, Optional, Tuple
 
 from json import loads
 from io import StringIO
 
-from hit_analysis.commons.config import Config
+
+LoadJsonCallback = Callable[[dict, int, List[dict]], Optional[bool]]
 
 
-def load_objects_from_stream(_input: TextIO, config: Config, parser: Optional[Callable[[dict], bool]] = None) -> List[dict]:
+def load_json_from_stream(_input: TextIO, _filter: Optional[LoadJsonCallback] = None) -> Tuple[List[dict], int]:
     """
-    Extract objects from array in JSON.
-    :param _input: input text stream
-    :param config: using config.print_log
-    :param parser: optional parses and filter method, when return False then not be added
-    :return: list of objects
+    Extract flat objects from array in JSON.
+
+    Example::
+      objects, count = load_json_from_stream(os.stdin, progress_load_filter)
+
+    Example content of input JSON file::
+
+      {
+        "list": [
+          {
+            "key1": "value1",
+            "key2": "value2",
+            ...
+          },
+        ...]
+      }
+
+    How it works:
+      1. Ignore all chars until ``'['``
+      2. Extract string between next ``'{'`` and following ``'}'`` by:
+
+         a) Ignore all chars until ``'{'``
+         b) Copy all chars until ``'}'``
+
+      3. Parse extracted string by JSON parser from stdlib.
+      4. Execute filter if is not None, when is None or return True then append object to return list
+      5. Go to 2. until ``']'``
+
+    Note: depth of ``'{'`` was ignored, only flat object are supported
+
+    :param _input: input text stream with JSON content
+    :type _input: TextIO
+
+    :param _filter: optional callback function. Can be used for filter, progress notification,
+    cancelling of read next and run some processes on parsed object.
+    When is None then return effect is equivalent to return True by always.
+    :type _filter: Callable
+
+    The ``_filter(obj, count, ret)`` callback provided as arg:
+      Can be used for filter, progress notification and cancelling of read next.
+      See ``progress_load_filter()`` or ``progress_and_process_image()`` for example how to implement custom callback method.
+
+      Args:
+        * ``obj``: parsed JSON object
+        * ``count``: count of just parsed JSON object
+        * ``ret``: list of just appended objects
+
+      Return effect:
+        * ``True``: parsed object will be append to ``ret`` list. Similar when ``_filter`` arg was not provided.
+        * ``False``: object will be ignored (will not be append to ``ret`` list)
+        * ``None``: object will be ignored and next object loop will be broken (cancel).
+
+    :return: tuple of (list of appended objects, count of all parsed objects from input)
     """
     ret = []
-    timing2 = timing = config.print_log('Parsing objects from JSON provided in STDIN...')
     count = 0
-    skip = 0
 
     stage = 0
     buff = None
     for line in _input:
+        done = False
         for a in line:
             if stage == 0:
                 if a == '[':
@@ -29,6 +79,7 @@ def load_objects_from_stream(_input: TextIO, config: Config, parser: Optional[Ca
                     continue  # and read next character
             if stage == 1:
                 if a == ']':
+                    done = True
                     break
                 if a == '{':
                     buff = StringIO()
@@ -37,42 +88,68 @@ def load_objects_from_stream(_input: TextIO, config: Config, parser: Optional[Ca
                 if a == '}':
                     buff.write(a)
                     o = loads(buff.getvalue())
-                    if parser is None or parser(o):
-                        ret.append(o)
-                        count += 1
-                    else:
-                        skip += 1
                     buff.close()
                     buff = None
-                    stage = 1
 
-                    if (count + skip) % 10000 == 0:
-                        timing2 = config.print_log('... just parsed %d and skip %d objects...' % (count + skip, skip), timing2)
+                    count += 1
+                    if filter is None:
+                        ret.append(o)
+                    else:
+                        fr = _filter(o, count, ret)
+                        if fr is None:
+                            done = True
+                            break
+                        elif fr:
+                            ret.append(o)
+                    stage = 1
                 else:
                     buff.write(a)
+        if done:
+            break
 
-    config.print_log('... done, the %d objects was parsed' % count, timing)
+    return ret, count
+
+
+def load_json(input_file: str, *args, **kwargs) -> Tuple[List[dict], int]:
+    """
+    Wrapper on ``load_json_from_stream()``.
+
+    When ``input_file`` contains a ``"-"`` string then input will be read from ``stdin``.
+    Otherwise the file will be open as input text stream.
+
+    Examples::
+
+      objects, count = load_json("-", progress_load_filter)
+      objects, count = load_json("/tmp/detections.json", progress_and_process_image)
+
+    :param input_file: path to JSON file or "-" for stdin.
+    :return: redirected directly from load_json_from_stream()
+    """
+    inp = sys.stdin if input_file == '-' else open(input_file, 'r')
+    ret = load_json_from_stream(inp, *args, **kwargs)
+    if input_file != '-':
+        inp.close()
     return ret
 
 
-def load_objects_from_str(s: str, config: Config) -> List[dict]:
+def serialize(output_file: str, obj_list: List[dict]) -> None:
     """
-    Extract objects from array in JSON.
-    :param s: JSON in string
-    :param config: using config.print_log
-    :return: list of objects
+    Save data to binary file.
+
+    Note: please refer to ``pickle`` module limitations.
+    :param output_file: path to file when data will be stored
+    :param obj_list: list of object to store
     """
-    return load_objects_from_stream(StringIO(s), config)
+    with open(output_file, 'wb') as f:
+        pickle.dump(obj_list, f)
 
 
-def load_objects(source: str or TextIO, config: Config) -> List[dict]:
+def deserialize(input_file: str) -> List[dict]:
     """
-    Extract objects from array in JSON.
-    :param source: JSON in string or in text stream
-    :param config: using config.print_log
+    Load data stored by ``serialize()``.
+
+    :param input_file: path to file when data was stored by serialize()
     :return: list of objects
     """
-    if isinstance(source, str):
-        return load_objects_from_str(source, config)
-    else:
-        return load_objects_from_stream(source, config)
+    with open(input_file, "rb") as f:
+        return pickle.load(f)
