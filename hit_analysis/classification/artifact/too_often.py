@@ -1,47 +1,50 @@
-from typing import List, Dict, Optional, Callable
+import itertools
+from typing import List, Tuple
 
-from hit_analysis.commons.consts import CLASSIFIED, CLASS_ARTIFACT, ARTIFACT_TOO_OFTEN
+from hit_analysis.commons.classify import classify_by_lambda
+from hit_analysis.commons.consts import ARTIFACT_TOO_OFTEN
 from hit_analysis.commons.grouping import group_by_timestamp_division
+from hit_analysis.commons.utils import get_and_set
 
 
-def too_often_classify(group: Dict[int, List[dict]], often: int) -> None:
+def too_often(detections: List[dict], often: int = 4, time_window: int = 60000) -> Tuple[List[dict], List[dict]]:
     """
-    Classify detections as artifact when count in group is grater or equal than often param.
-    When detection was classified as artifact then 'classified' field will be set to 'artifact'
-    and 'artifact_too_often' will be set to len(group)
-    :param group: list of detections grouped by timestamp
-    :param often: when len(group) is grater or equal than often param then it will be classified as artifact
-    """
-    count = len(group.keys())
-    for detections in group.values():
-        for d in detections:
-            if count >= often:
-                d[CLASSIFIED] = CLASS_ARTIFACT
-            d[ARTIFACT_TOO_OFTEN] = count
+    Analyse by too often classifier.
 
+    Note: detections should be grouped by ``device_id``.
+    See: ``group_by_device_id()``.
+    The additional group by ``resolution`` is not required, but is not prohibited.
+    So it may be work in the same grouped detections than for ``(near_)hot_pixel(2)`` classifiers.
 
-def group_for_too_often(detections: List[dict], time_division: int = 60000, exclusion: Optional[Callable[[dict], bool]] = None) -> Dict[int, Dict[int, List[dict]]]:
-    """
-    Group detections for too_often_filter.
-    :param detections: ungrouped list of detections, should be list of detections for one device
-    :param time_division: time window for division in ms, default 60000ms = 1 minute
-    :param exclusion: when is not None and return True then object will be ignored
-    :return: list of detection grouped by time_division then timestamp
-    """
-    grouped = group_by_timestamp_division(detections, time_division, exclusion)
-    ret = {}
-    for k, v in grouped.items():
-        r = group_by_timestamp_division(v, 1)
-        if len(r.keys()) > 0:
-            ret[k] = r
-    return ret
+    :param detections: list of detections
+    :param often: classified threshold
+    :param time_window: timestamp distance
 
+    Classifier work similar to ``near_hot_pixel2`` classifier but in this we use ``timestamp`` object's key as group key.
+    At first, te detections from the same original image frame (with the same ``timestamp`` value) are counted as one detection.
+    At second, all other detections who distance is less than ``time_window`` are counted to ``artifact_too_often`` object's key.
 
-def too_often_process(groups: Dict[int, Dict[int, List[dict]]], often: int = 4) -> None:
+    The distance measurement of keys is the Euclidean distance between ``timestamp`` and ``timestamp'`` in 1D space.
+
+    Required keys:
+      * ``timestamp``: for group by the same original image frame, and count of detections in near
+
+    Keys will be add:
+      * ``artifact_hot_pixel``: count of detections in near ``timestamp``.
+      * ``classified``: set to ``artifact`` when detection will be classified as too_often artifact.
+
+    Example::
+
+      for by_device_id in group_by_device_id(detections):
+        too_often(by_device_id)
+
+    :return: tuple of (list of classified, list of no classified)
     """
-    Execute too_often_filter for all groups.
-    :param groups: detections grouped by group_for_too_often
-    :param often: parameter for too_often_filter
-    """
-    for k, v in groups.items():
-        too_often_classify(v, often)
+    grouped = group_by_timestamp_division(detections, 1)
+    to_compare = itertools.combinations_with_replacement(grouped.keys(), 2)
+    for key, key_prim in to_compare:
+        for d in [*grouped.get(key), *grouped.get(key_prim)]:
+            get_and_set(d, ARTIFACT_TOO_OFTEN, 0)
+            if abs(key_prim - key_prim) < time_window:
+                d[ARTIFACT_TOO_OFTEN] += 1
+    return classify_by_lambda(detections, lambda x: x.get(ARTIFACT_TOO_OFTEN) >= often)

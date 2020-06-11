@@ -1,3 +1,4 @@
+import itertools
 from typing import List, Tuple
 
 from hit_analysis.commons.classify import classify_by_lambda
@@ -38,12 +39,16 @@ def near_hot_pixel2(detections: List[dict], often: int = 3, distance: float = 5)
 
     :return: tuple of (list of classified, list of no classified)
     """
-    for detection in detections:
-        key_prim = (detection.get(X), detection.get(Y))
-        for ref in detections:
-            key = (ref.get(X), ref.get(Y))
-            if point_to_point_distance(key, key_prim) < distance:
-                get_and_set(detection, ARTIFACT_NEAR_HOT_PIXEL2, 0)
-                detection[ARTIFACT_NEAR_HOT_PIXEL2] += 1
+    to_compare = itertools.combinations_with_replacement(detections, 2)
+    for d, d_prim in to_compare:
+        key = (d.get(X), d.get(Y))
+        key_prim = (d_prim.get(X), d_prim.get(Y))
+
+        get_and_set(d, ARTIFACT_NEAR_HOT_PIXEL2, 0)
+        get_and_set(d_prim, ARTIFACT_NEAR_HOT_PIXEL2, 0)
+
+        if point_to_point_distance(key, key_prim) < distance:
+            d[ARTIFACT_NEAR_HOT_PIXEL2] += 1
+            d_prim[ARTIFACT_NEAR_HOT_PIXEL2] += 1
 
     return classify_by_lambda(detections, lambda x: x.get(ARTIFACT_NEAR_HOT_PIXEL2) >= often)

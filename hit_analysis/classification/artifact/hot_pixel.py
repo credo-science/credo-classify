@@ -32,5 +32,5 @@ def hot_pixel(detections: List[dict], often: int = 3) -> Tuple[List[dict], List[
 
     :return: tuple of (list of classified, list of no classified)
     """
-    grouped = group_by_lambda(detections, lambda x: (x.get(X), x.get(Y)))
+    grouped = group_by_lambda(detections, lambda x, ret: (x.get(X), x.get(Y)))
     return classify_by_count_in_group(grouped, often, ARTIFACT_HOT_PIXEL)

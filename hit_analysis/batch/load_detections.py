@@ -5,12 +5,12 @@ from hit_analysis.classification.artifact.near_hot_pixel import near_hot_pixel
 from hit_analysis.classification.artifact.near_hot_pixel2 import near_hot_pixel2
 from hit_analysis.classification.artifact.too_dark import too_dark
 from hit_analysis.classification.artifact.too_large_bright_area import too_large_bright_area
-from hit_analysis.classification.artifact.too_often import group_for_too_often, too_often_process
+from hit_analysis.classification.artifact.too_often import too_often
 from hit_analysis.commons.config import Config
 from hit_analysis.commons.consts import CLASSIFIED, CLASS_ARTIFACT, DEVICE_ID, FRAME_DECODED, ARTIFACT_NEAR_HOT_PIXEL_REFXY, X, Y, ARTIFACT_HOT_PIXEL, \
     ARTIFACT_NEAR_HOT_PIXEL, ID, ARTIFACT_TOO_OFTEN, TIMESTAMP, ARTIFACT_TOO_DARK, ARTIFACT_TOO_LARGE_BRIGHT_AREA, FRAME_CONTENT, ARTIFACT_NEAR_HOT_PIXEL2, \
     IMAGE
-from hit_analysis.commons.grouping import group_by_device_id, group_by_resolution
+from hit_analysis.commons.grouping import group_by_device_id, group_by_resolution, group_by_timestamp_division
 from hit_analysis.commons.utils import get_resolution_key, join_tuple
 from hit_analysis.image.cut_reconstruction import check_all_artifacts, do_reconstruct
 from hit_analysis.image.image_utils import count_of_brightest_pixels
@@ -86,17 +86,16 @@ def filter_artifacts_and_reconstruct(detections: List[dict], config: Config) -> 
     config.print_log('... near_hot_pixel2 done', timing)
 
     timing = config.print_log('too_often filter with too_often=%d...' % config.too_often)
-    by_minute_by_timestamp = group_for_too_often(detections, config.too_often_time_division)
-    too_often_process(by_minute_by_timestamp, config.too_often)
+    too_often(detections, config.too_often)
     config.print_log('... too_often done', timing)
 
     timing = config.print_log('reconstruct black fills...')
-    for minute, by_timestamp in by_minute_by_timestamp.items():
-        for timestamp, dcs in by_timestamp.items():
-            if len(dcs) > 1 and not check_all_artifacts(dcs):
-                timing2 = config.print_log(' reconstruct black fills for timestamp %d...' % timestamp)
-                do_reconstruct(dcs, config)
-                config.print_log(' ... reconstruct done', timing2)
+    by_timestamp = group_by_timestamp_division(detections, 1)
+    for timestamp, dcs in by_timestamp.items():
+        if len(dcs) > 1 and not check_all_artifacts(dcs):
+            timing2 = config.print_log(' reconstruct black fills for timestamp %d...' % timestamp)
+            do_reconstruct(dcs, config)
+            config.print_log(' ... reconstruct done', timing2)
     config.print_log('... reconstruct black fills done', timing)
 
 

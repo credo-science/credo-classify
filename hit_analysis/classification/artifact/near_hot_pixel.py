@@ -48,8 +48,8 @@ def near_hot_pixel(detections: List[dict], often: int = 3, distance: float = 5) 
         for key in grouped.keys():
             if point_to_point_distance(key, key_prim) < distance:
                 key_prim = key
-                detection[ARTIFACT_NEAR_HOT_PIXEL_REFXY] = key
                 break
+        detection[ARTIFACT_NEAR_HOT_PIXEL_REFXY] = key_prim
         get_and_set(grouped, key_prim, []).append(detection)
 
     return classify_by_count_in_group(grouped, often, ARTIFACT_NEAR_HOT_PIXEL)
