@@ -1,47 +1,36 @@
-from typing import List, Dict, Tuple, Optional, Callable
+from typing import List, Tuple
 
-from hit_analysis.commons.consts import CLASSIFIED, CLASS_ARTIFACT, ARTIFACT_HOT_PIXEL
-from hit_analysis.commons.utils import get_xy_key
-from hit_analysis.commons.grouping import group_by_lambda, group_by_resolution
+from hit_analysis.commons.classify import classify_by_count_in_group
+from hit_analysis.commons.consts import CLASSIFIED, CLASS_ARTIFACT, ARTIFACT_HOT_PIXEL, X, Y
+from hit_analysis.commons.grouping import group_by_lambda
 
 
-def hot_pixel_classify(group: Dict[Tuple[int, int], List[dict]], often: int) -> None:
+def hot_pixel(detections: List[dict], often: int = 3) -> Tuple[List[dict], List[dict]]:
     """
-    Classify detections as artifact when count in group is grater or equal than often param.
-    When detection was classified as artifact then 'classified' field will be set to 'artifact'
-    and 'artifact_hot_pixel' will be set to len(group)
-    :param group: list of detections grouped by XY of detection
-    :param often: when len(group) is grater or equal than often param then it will be classified as artifact
-    """
-    for detections in group.values():
-        count = len(detections)
-        for d in detections:
-            if count >= often:
-                d[CLASSIFIED] = CLASS_ARTIFACT
-            d[ARTIFACT_HOT_PIXEL] = count
+    Analyse by hot pixel classifier.
 
+    Note: detections should be grouped by ``device_id`` and ``resolution``.
+    See: ``group_by_device_id()`` and ``group_by_resolution()``.
 
-def group_for_hot_pixel(detections: List[dict], exclusion: Optional[Callable[[dict], bool]] = None) -> Dict[Tuple[int, int], Dict[Tuple[int, int], List[dict]]]:
-    """
-    Group detections by resolution and XY of detection
-    :param detections: ungrouped detections, should be list of detections for one device
-    :param exclusion: when is not None and return True then object will be ignored
-    :return: detections grouped by resolution and XY of detection
-    """
-    grouped = group_by_resolution(detections, exclusion)
-    ret = {}
-    for k, g in grouped.items():
-        r = group_by_lambda(g, lambda x, y: get_xy_key(x))
-        if len(r.keys()) > 0:
-            ret[k] = r
-    return ret
+    :param detections: list of detections
+    :param often: classified threshold
 
+    When in one ``(X, Y)`` coordinates on original frame we have more than ``often`` detections, we classify all as hot_pixel artifact.
 
-def hot_pixel_process(groups: Dict[Tuple[int, int], Dict[Tuple[int, int], List[dict]]], often: int = 3) -> None:
+    Required keys:
+      * ``X`` and ``Y``: coordinates of detection on original frame
+
+    Keys will be add:
+      * ``artifact_hot_pixel``: count of detections in the same ``(X, Y)`` coordinates on original frame.
+      * ``classified``: set to ``artifact`` when detection will be classified as hot_pixel artifact.
+
+    Example::
+
+      for by_device_id in group_by_device_id(detections):
+        for by_resolution in group_by_resolution(by_device_id)
+          hot_pixel(by_resolution)
+
+    :return: tuple of (list of classified, list of no classified)
     """
-    Execute hot_pixel_filter for all groups.
-    :param groups: detections grouped by group_for_hot_pixel
-    :param often: parameter for hot_pixel_classify
-    """
-    for k, v in groups.items():
-        hot_pixel_classify(v, often)
+    grouped = group_by_lambda(detections, lambda x: (x.get(X), x.get(Y)))
+    return classify_by_count_in_group(grouped, often, ARTIFACT_HOT_PIXEL)

@@ -1,8 +1,8 @@
 from typing import List
 
-from hit_analysis.classification.artifact.hot_pixel import group_for_hot_pixel, hot_pixel_process
-from hit_analysis.classification.artifact.near_hot_pixel import near_hot_pixel_process, group_for_near_hot_pixel
-from hit_analysis.classification.artifact.near_hot_pixel2 import group_for_near_hot_pixel2, near_hot_pixel_process2
+from hit_analysis.classification.artifact.hot_pixel import hot_pixel
+from hit_analysis.classification.artifact.near_hot_pixel import near_hot_pixel
+from hit_analysis.classification.artifact.near_hot_pixel2 import near_hot_pixel2
 from hit_analysis.classification.artifact.too_dark import too_dark
 from hit_analysis.classification.artifact.too_large_bright_area import too_large_bright_area
 from hit_analysis.classification.artifact.too_often import group_for_too_often, too_often_process
@@ -10,11 +10,10 @@ from hit_analysis.commons.config import Config
 from hit_analysis.commons.consts import CLASSIFIED, CLASS_ARTIFACT, DEVICE_ID, FRAME_DECODED, ARTIFACT_NEAR_HOT_PIXEL_REFXY, X, Y, ARTIFACT_HOT_PIXEL, \
     ARTIFACT_NEAR_HOT_PIXEL, ID, ARTIFACT_TOO_OFTEN, TIMESTAMP, ARTIFACT_TOO_DARK, ARTIFACT_TOO_LARGE_BRIGHT_AREA, FRAME_CONTENT, ARTIFACT_NEAR_HOT_PIXEL2, \
     IMAGE
-from hit_analysis.commons.grouping import group_by_device_id
+from hit_analysis.commons.grouping import group_by_device_id, group_by_resolution
 from hit_analysis.commons.utils import get_resolution_key, join_tuple
 from hit_analysis.image.cut_reconstruction import check_all_artifacts, do_reconstruct
 from hit_analysis.image.image_utils import count_of_brightest_pixels
-from hit_analysis.io.io_utils import decode_base64
 
 
 def store_debug_pngs(detections, config: Config):
@@ -75,15 +74,15 @@ def store_debug_pngs(detections, config: Config):
 
 def filter_artifacts_and_reconstruct(detections: List[dict], config: Config) -> None:
     timing = config.print_log('hot_pixel filter with hot_pixel_often=%d...' % config.hot_pixel_often)
-    hot_pixel_process(group_for_hot_pixel(detections), config.hot_pixel_often)
+    hot_pixel(detections, config.hot_pixel_often)
     config.print_log('... hot_pixel done', timing)
 
     timing = config.print_log('near_hot_pixel filter with near_hot_pixel_often=%d, near_hot_pixel_distance=%d...' % (config.near_hot_pixel_often, config.near_hot_pixel_distance))
-    near_hot_pixel_process(group_for_near_hot_pixel(detections, config.near_hot_pixel_distance), config.near_hot_pixel_often)
+    near_hot_pixel(detections, config.near_hot_pixel_often, config.near_hot_pixel_distance)
     config.print_log('... near_hot_pixel done', timing)
 
     timing = config.print_log('near_hot_pixel2 filter with near_hot_pixel_often=%d, near_hot_pixel_distance=%d...' % (config.near_hot_pixel_often, config.near_hot_pixel_distance))
-    near_hot_pixel_process2(group_for_near_hot_pixel2(detections), config.near_hot_pixel_often, config.near_hot_pixel_distance)
+    near_hot_pixel2(detections, config.near_hot_pixel_often, config.near_hot_pixel_distance)
     config.print_log('... near_hot_pixel2 done', timing)
 
     timing = config.print_log('too_often filter with too_often=%d...' % config.too_often)
@@ -129,14 +128,16 @@ def analyse_detections_batch(detections: List[dict], config: Config) -> None:
     config.change_log_indent(1)
     by_device_id = group_by_device_id(detections)
     config.print_log('... grouped by device_id...', timing)
-    for device_id, dcs in by_device_id.items():
+    for device_id, for_device_id in by_device_id.items():
         timing = config.print_log('Processing for device_id %d...' % device_id)
 
-        config.change_log_indent(1)
-        filter_artifacts_and_reconstruct(dcs, config)
-        image_simple_classify(dcs, config)
-        store_debug_pngs(dcs, config)
-        config.change_log_indent(-1)
+        by_resolution = group_by_resolution(for_device_id)
+        for resolution, for_resolution in by_resolution.items():
+            config.change_log_indent(1)
+            filter_artifacts_and_reconstruct(for_resolution, config)
+            image_simple_classify(for_resolution, config)
+            store_debug_pngs(for_resolution, config)
+            config.change_log_indent(-1)
 
         config.print_log('... processing for device_id %d done' % device_id, timing)
 
