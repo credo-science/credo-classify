@@ -43,8 +43,12 @@ def too_often(detections: List[dict], often: int = 4, time_window: int = 60000) 
     grouped = group_by_timestamp_division(detections, 1)
     to_compare = itertools.combinations_with_replacement(grouped.keys(), 2)
     for key, key_prim in to_compare:
-        for d in [*grouped.get(key), *grouped.get(key_prim)]:
-            get_and_set(d, ARTIFACT_TOO_OFTEN, 0)
-            if abs(key_prim - key_prim) < time_window:
-                d[ARTIFACT_TOO_OFTEN] += 1
+        if key == key_prim:  # zero value guard (fill 0 when only one detection in group)
+            for d in grouped.get(key):
+                get_and_set(d, ARTIFACT_TOO_OFTEN, 0)
+        else:
+            for d in [*grouped.get(key), *grouped.get(key_prim)]:
+                get_and_set(d, ARTIFACT_TOO_OFTEN, 0)
+                if abs(key_prim - key_prim) < time_window:
+                    d[ARTIFACT_TOO_OFTEN] += 1
     return classify_by_lambda(detections, lambda x: x.get(ARTIFACT_TOO_OFTEN) >= often)
